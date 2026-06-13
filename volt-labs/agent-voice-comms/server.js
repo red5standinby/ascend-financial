@@ -1,15 +1,17 @@
 /**
  * Agent Voice Comms — Server
  * 
- * Browser mic → WebSocket → Deepgram STT → Chombi/agent → ElevenLabs TTS → WebSocket → Speakers
+ * Browser mic → WebSocket → Deepgram STT → agent → Deepgram TTS → WebSocket → Speakers
  * 
- * Port 8766 — next to Command Center on 8765
+ * Designed to run on Railway (HTTP, PORT env var, TLS at edge).
+ * Also runs locally with HTTPS on HTTPS_PORT (default 8767) when cert.pem exists.
  */
 
 import 'dotenv/config';
 import express from 'express';
-import { createServer } from 'https';
-import { readFileSync } from 'fs';
+import { createServer as createHttpServer } from 'http';
+import { createServer as createHttpsServer } from 'https';
+import { readFileSync, existsSync } from 'fs';
 import { WebSocketServer } from 'ws';
 import { createClient as createDeepgramClient } from '@deepgram/sdk';
 import { ElevenLabsClient } from 'elevenlabs';
@@ -18,8 +20,10 @@ import { Readable } from 'stream';
 // ─── Config ────────────────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 8766;
+const HTTPS_PORT = process.env.HTTPS_PORT || 8767;
 const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+const TTS_PROVIDER = process.env.TTS_PROVIDER || 'deepgram'; // 'deepgram' or 'elevenlabs'
 
 // ─── Services ──────────────────────────────────────────────────────────────
 
@@ -39,17 +43,19 @@ if (ELEVENLABS_API_KEY) {
 const app = express();
 app.use(express.static('public'));
 
-const server = createServer({
-  key: readFileSync('key.pem'),
-  cert: readFileSync('cert.pem'),
-}, app);
+// On Railway: HTTP. Locally: HTTPS with self-signed cert.
+const hasCerts = existsSync('key.pem') && existsSync('cert.pem');
+const server = hasCerts
+  ? createHttpsServer({ key: readFileSync('key.pem'), cert: readFileSync('cert.pem') }, app)
+  : createHttpServer(app);
+
 const wss = new WebSocketServer({ server });
 
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     deepgram: !!deepgram,
-    elevenlabs: !!elevenlabs,
+    tts: TTS_PROVIDER + ' ' + (TTS_PROVIDER === 'deepgram' ? !!deepgram : !!elevenlabs),
   });
 });
 
@@ -103,27 +109,54 @@ function createDeepgramStream(onTranscript, onError) {
   return dgConnection;
 }
 
-// ─── ElevenLabs TTS Streaming ──────────────────────────────────────────────
+// ─── TTS ────────────────────────────────────────────────────────────────────
 
-async function streamTTS(ws, text, voice = '21m00Tcm4TlvDq8ikWAM') {
-  if (!elevenlabs) return null;
-
+async function streamTTS(ws, text) {
   try {
-    const audioStream = await elevenlabs.generate({
-      voice,
-      text,
-      model_id: 'eleven_turbo_v2',
-      output_format: 'mp3_44100_128',
-    });
-
-    // audioStream is a Readable stream
-    for await (const chunk of audioStream) {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(chunk);
-      }
+    if (TTS_PROVIDER === 'elevenlabs' && elevenlabs) {
+      return await elevenlabsTTS(ws, text);
+    } else if (deepgram) {
+      return await deepgramTTS(ws, text);
     }
+    console.warn('[tts] no TTS provider available');
   } catch (err) {
     console.error('[tts] error:', err.message);
+  }
+}
+
+async function deepgramTTS(ws, text) {
+  const result = await deepgram.speak.request(
+    { text },
+    { model: 'aura-asteria-en', encoding: 'mp3' }
+  );
+  const stream = await result.getStream();
+  const reader = stream.getReader();
+  const chunks = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const audio = Buffer.concat(chunks);
+  if (ws.readyState === ws.OPEN && audio.length > 0) {
+    ws.send(audio);
+  }
+}
+
+async function elevenlabsTTS(ws, text, voice = '21m00Tcm4TlvDq8ikWAM') {
+  const audioStream = await elevenlabs.generate({
+    voice,
+    text,
+    model_id: 'eleven_turbo_v2',
+    output_format: 'mp3_44100_128',
+  });
+  const chunks = [];
+  for await (const chunk of audioStream) {
+    chunks.push(chunk);
+  }
+  const audio = Buffer.concat(chunks);
+  if (ws.readyState === ws.OPEN && audio.length > 0) {
+    ws.send(audio);
   }
 }
 
@@ -228,8 +261,8 @@ async function handleAgentMessage(ws, text) {
     // Send text reply to UI
     ws.send(JSON.stringify({ type: 'reply', text: reply }));
 
-    // Stream TTS audio back
-    if (elevenlabs) {
+    // Stream TTS audio back (Deepgram or ElevenLabs)
+    if (deepgram || elevenlabs) {
       setStatus('speaking');
       try {
         await streamTTS(ws, reply);
@@ -294,14 +327,14 @@ function setStatus(status) {
 // ─── Start ─────────────────────────────────────────────────────────────────
 
 const HOST = '0.0.0.0';
-const HTTPS_PORT = process.env.HTTPS_PORT || 8767;
+const listenPort = hasCerts ? HTTPS_PORT : PORT;
 
-server.listen(HTTPS_PORT, HOST, () => {
+server.listen(listenPort, HOST, () => {
   console.log(`\n  ⚡ Agent Voice Comms  ⚡`);
   console.log(`  ───────────────────────`);
-  console.log(`  → https://localhost:${HTTPS_PORT}`);
-  console.log(`  → https://10.49.1.123:${HTTPS_PORT}  (LAN, HTTPS)`);
-  console.log(`  → STT: ${deepgram ? 'Deepgram ✓' : 'Deepgram ✗ (no API key)'}`);
-  console.log(`  → TTS: ${elevenlabs ? 'ElevenLabs ✓' : 'ElevenLabs ✗ (no API key)'}`);
+  const proto = hasCerts ? 'https' : 'http';
+  console.log(`  → ${proto}://localhost:${listenPort}`);
+  console.log(`  → STT: ${deepgram ? 'Deepgram ✓' : 'Deepgram ✗'}`);
+  console.log(`  → TTS: ${TTS_PROVIDER} ${TTS_PROVIDER === 'deepgram' && deepgram || TTS_PROVIDER === 'elevenlabs' && elevenlabs ? '✓' : '✗'}`);
   console.log();
 });
