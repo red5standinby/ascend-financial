@@ -1,0 +1,4 @@
+node_modules/
+volt-labs/agent-voice-comms/cert.pem
+volt-labs/agent-voice-comms/key.pem
+volt-labs/agent-voice-comms/.env
