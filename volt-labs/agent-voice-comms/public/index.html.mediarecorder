@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Agent Voice Comms ⚡</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -68,7 +71,7 @@
   <div class="container">
     <h1>⚡ Agent Voice</h1>
     <p class="subtitle">Talk to Volt Labs agents</p>
-
+    
     <div class="status-text">
       <span class="status-dot disconnected" id="statusDot"></span>
       <span id="statusLabel">Disconnected</span>
@@ -86,17 +89,17 @@
     </div>
 
     <button class="mic-btn" id="micBtn">🎤</button>
-
+    
     <div class="transcript-box">
       <div class="label">You</div>
       <div class="text" id="transcriptText">Press the mic and start speaking...</div>
     </div>
-
+    
     <div class="reply-box">
       <div class="label">Agent</div>
       <div class="text" id="replyText">Waiting for input...</div>
     </div>
-
+    
     <div class="error" id="error"></div>
     <pre id="log" style="font-size:0.6rem;color:#666;text-align:left;margin-top:1rem;padding:0.5rem;background:#08080f;border-radius:8px;max-height:120px;overflow-y:auto;white-space:pre-wrap;"></pre>
   </div>
@@ -118,12 +121,14 @@
     let audioCtx = null;
     let analyser = null;
     let stream = null;
-    let processor = null;
+    let mediaRecorder = null;
     let source = null;
     let isRecording = false;
     let isSpeaking = false;
     let vuInterval = null;
-
+    let endSent = false;
+    let pcmProcessor = null;
+    
     // DOM refs
     const micBtn = document.getElementById('micBtn');
     const statusDot = document.getElementById('statusDot');
@@ -136,18 +141,18 @@
 
     // ─── WebSocket ────────────────────────────────────────────────────────
     let reconnectTimer = null;
-
+    
     function connect() {
       log('Connecting to ' + WS_URL);
       setStatus('connecting');
       ws = new WebSocket(WS_URL);
-
+      
       ws.onopen = () => {
         log('WebSocket connected');
         setStatus('connected');
         errorEl.textContent = '';
       };
-
+      
       ws.onclose = (e) => {
         log('WebSocket closed: code=' + e.code);
         setStatus('disconnected');
@@ -155,22 +160,22 @@
         if (reconnectTimer) clearTimeout(reconnectTimer);
         reconnectTimer = setTimeout(connect, 2000);
       };
-
+      
       ws.onerror = () => {
         log('WebSocket error');
-        errorEl.textContent = 'Connection error - server may be offline';
+        errorEl.textContent = 'Connection error — server may be offline';
       };
-
+      
       ws.onmessage = async (event) => {
         if (event.data instanceof Blob) {
           log('Received audio blob (' + event.data.size + ' bytes)');
           await playAudio(event.data);
           return;
         }
-
+        
         try {
           const msg = JSON.parse(event.data);
-
+          
           switch (msg.type) {
             case 'status':
               log('Status: ' + msg.message);
@@ -203,10 +208,10 @@
     // ─── Audio Playback ───────────────────────────────────────────────────
     async function playAudio(blob) {
       if (!audioCtx) return;
-
+      
       const arrayBuffer = await blob.arrayBuffer();
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
+      
       const source = audioCtx.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(audioCtx.destination);
@@ -226,155 +231,203 @@
         log('Requesting mic access...');
         stream = await navigator.mediaDevices.getUserMedia({
           audio: {
+            sampleRate: 16000,
             channelCount: 1,
             echoCancellation: true,
             noiseSuppression: true,
           }
         });
         log('Mic granted. Tracks: ' + stream.getAudioTracks().length);
-        const settings = stream.getAudioTracks()[0].getSettings();
-        const micSampleRate = settings.sampleRate || 48000;
-        log('Mic sampleRate: ' + micSampleRate + ', channelCount: ' + (settings.channelCount || 'unknown'));
 
         // Audio context for VU meter only
-        audioCtx = new AudioContext();
+        audioCtx = new AudioContext({ sampleRate: 16000 });
         if (audioCtx.state === 'suspended') await audioCtx.resume();
-        const targetRate = 16000;
-        log('AudioContext rate: ' + audioCtx.sampleRate + ', target: ' + targetRate);
-        
         source = audioCtx.createMediaStreamSource(stream);
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 256;
         source.connect(analyser);
         startVUMeter();
-
+        
         isRecording = true;
         setStatus('listening');
         transcriptText.textContent = 'Listening...';
         replyText.textContent = '';
-
-        // Server expects PCM @ 16000 — send start BEFORE audio
-        ws.send(JSON.stringify({ type: 'start' }));
+        
+        // Use MediaRecorder for universal mobile support
+        // Defaults to Opus in WebM on Android/iOS Chrome
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : 'audio/webm';
+        mediaRecorder = new MediaRecorder(stream, { mimeType });
+        
+        // Tell server to start Deepgram stream with webm format
+        log('Sending start signal (format: ' + mimeType + ')...');
+        ws.send(JSON.stringify({ type: 'start', format: mimeType }));
         log('Start signal sent');
         
-        // Use AudioWorklet for reliable PCM capture
-        try {
-          await audioCtx.audioWorklet.addModule('processor.js');
-          const workletNode = new AudioWorkletNode(audioCtx, 'pcm-processor', {
-            processorOptions: { targetRate }
-          });
-          source.connect(workletNode);
-          
-          let totalSent = 0;
-          let lastLogTime = 0;
-          
-          workletNode.port.onmessage = (e) => {
-            if (!isRecording || isSpeaking) return;
-            try {
-              const pcm = e.data;
-              if (ws && ws.readyState === WebSocket.OPEN) {
-                // ArrayBuffer must go through Blob for browser WS compatibility
-                ws.send(pcm);
-                totalSent++;
-                const now = Date.now();
-                if (now - lastLogTime > 3000) {
-                  log('Sent ' + totalSent + ' PCM chunks');
-                  lastLogTime = now;
-                }
-              }
-            } catch (err) {
-              log('PCM send error: ' + err.message);
-            }
-          };
-          
-          processor = workletNode;
-          log('AudioWorklet connected');
-        } catch (workletErr) {
-          // Fallback to ScriptProcessorNode (deprecated but works on desktop)
-          log('AudioWorklet failed: ' + workletErr.message + ', trying ScriptProcessorNode...');
-          const scriptNode = audioCtx.createScriptProcessor(2048, 1, 1);
-          source.connect(scriptNode);
-          scriptNode.connect(audioCtx.destination);
-          
-          let totalSent = 0;
-          let lastLogTime = 0;
-          scriptNode.onaudioprocess = (e) => {
-            if (!isRecording || isSpeaking) return;
-            try {
-              let input = e.inputBuffer.getChannelData(0);
-              if (audioCtx.sampleRate !== targetRate) {
-                const ratio = audioCtx.sampleRate / targetRate;
-                const outLen = Math.floor(input.length / ratio);
-                const out = new Float32Array(outLen);
-                for (let i = 0; i < outLen; i++) {
-                  const pos = i * ratio;
-                  const idx = Math.floor(pos);
-                  const frac = pos - idx;
-                  out[i] = idx + 1 < input.length
-                    ? input[idx] * (1 - frac) + input[idx + 1] * frac
-                    : input[idx];
-                }
-                input = out;
-              }
-              const pcm = new Int16Array(input.length);
-              for (let i = 0; i < input.length; i++) {
-                const s = Math.max(-1, Math.min(1, input[i]));
-                pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-              }
-              if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(pcm.buffer);
-                totalSent++;
-                const now = Date.now();
-                if (now - lastLogTime > 3000) {
-                  log('Sent ' + totalSent + ' PCM chunks (ScriptProcessorNode fallback)');
-                  lastLogTime = now;
-                }
-              }
-            } catch (err) {
-              log('PCM error: ' + err.message);
-            }
-          };
-          processor = scriptNode;
-          log('ScriptProcessorNode connected (fallback)');
+        let chunkCount = 0;
+        let recorderTimeout = null;
+        
+        // Helper: send end signal and clean up
+        function stopRecorder() {
+          if (recorderTimeout) clearTimeout(recorderTimeout);
+          if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            try { mediaRecorder.stop(); } catch {}
+          }
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'end' }));
+          }
         }
-
+        
+        isRecording = true;
+        endSent = false;
+        
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            chunkCount++;
+            log('Audio chunk ' + chunkCount + ': ' + e.data.size + ' bytes');
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(e.data);
+            }
+          }
+        };
+        
+        mediaRecorder.onstop = () => {
+          log('MediaRecorder stopped — chunks: ' + chunkCount);
+          if (chunkCount === 0 && !endSent) {
+            // No audio — try alternative format (PCM)
+            log('No audio with webm/opus, trying raw PCM path...');
+            // The server already has a dgStream open with opus encoding
+            // We need to close it and reopen with linear16
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'end' }));
+              endSent = true;
+            }
+            // Small delay for server to close old stream
+            setTimeout(() => {
+              if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'start', format: 'audio/L16;rate=16000' }));
+                log('Sent PCM start signal');
+                startPCMCapture();
+              }
+            }, 500);
+          } else {
+            if (!endSent && ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'end' }));
+              endSent = true;
+            }
+          }
+        };
+        
+        // Android Chrome sometimes only fires ondataavailable on stop
+        // So we use timeslice AND a backup interval
+        try {
+          mediaRecorder.start(250);
+          log('MediaRecorder started: ' + mimeType);
+          
+          // Some Android Chrome versions need requestData() to trigger ondataavailable
+          const requestInterval = setInterval(() => {
+            if (mediaRecorder && mediaRecorder.state === 'recording' && isRecording) {
+              try { mediaRecorder.requestData(); } catch {}
+            } else {
+              clearInterval(requestInterval);
+            }
+          }, 500);
+          
+        } catch (recErr) {
+          log('MediaRecorder failed: ' + recErr.message);
+          startPCMCapture();
+        }
+        
       } catch (err) {
         errorEl.textContent = 'Mic error: ' + err.message;
         log('Mic error: ' + err.message);
       }
     }
 
-    function stopMic() {
-      if (ws && ws.readyState === WebSocket.OPEN) {
+    // ── Fallback PCM capture (when MediaRecorder fails) ──
+    function startPCMCapture() {
+      log('Starting PCM capture fallback...');
+      if (!stream || !audioCtx) return;
+      
+      try {
+        const scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+        source.connect(scriptNode);
+        pcmProcessor = scriptNode;
+        
+        let pcmCount = 0;
+        scriptNode.onaudioprocess = (e) => {
+          if (!isRecording) return;
+          try {
+            const input = e.inputBuffer.getChannelData(0);
+            const pcm = new Int16Array(input.length);
+            for (let i = 0; i < input.length; i++) {
+              const s = Math.max(-1, Math.min(1, input[i]));
+              pcm[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              ws.send(pcm.buffer);
+              pcmCount++;
+              if (pcmCount === 1 || pcmCount % 25 === 0) {
+                log('PCM chunks sent: ' + pcmCount);
+              }
+            }
+          } catch (err) {
+            log('PCM error: ' + err.message);
+          }
+        };
+        
+        log('PCM capture started (ScriptProcessorNode)');
+      } catch (err) {
+        log('PCM fallback failed: ' + err.message);
+        errorEl.textContent = 'Mic not supported on this browser';
+      }
+    }
+    
+    function stopCapture() {
+      // MediaRecorder stop triggers end via onstop
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        return;
+      }
+      
+      // If onstop already handled it, return
+      if (pcmProcessor) {
+        try { pcmProcessor.disconnect(); } catch {}
+        pcmProcessor = null;
+      }
+      if (!endSent && ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'end' }));
       }
+    }
 
-      if (processor) {
-        processor.disconnect();
-        processor = null;
-      }
+    function stopMic() {
+      isRecording = false;
+      stopCapture();
+      
       if (source) source.disconnect();
       if (audioCtx) audioCtx.close();
       if (stream) stream.getTracks().forEach(t => t.stop());
-
+      
       stopVUMeter();
-      isRecording = false;
       setStatus('connected');
       stream = null;
       audioCtx = null;
+      pcmProcessor = null;
+      mediaRecorder = null;
     }
 
     // ─── VU Meter ─────────────────────────────────────────────────────────
     function startVUMeter() {
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
       vumeter.classList.add('active');
-
+      
       vuInterval = setInterval(() => {
         analyser.getByteFrequencyData(dataArray);
         const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
         const level = Math.min(1, avg / 128);
         const barCount = Math.round(level * 8);
-
+        
         for (let i = 0; i < 8; i++) {
           vuBars[i].style.height = `${Math.max(4, (i + 1) * 4 * level)}px`;
           vuBars[i].style.opacity = i < barCount ? '1' : '0.2';
@@ -400,7 +453,7 @@
         'thinking...': 'Thinking...',
       };
       statusLabel.textContent = labels[state] || state;
-
+      
       micBtn.className = 'mic-btn';
       if (state === 'listening') micBtn.classList.add('active');
       if (state === 'speaking') micBtn.classList.add('speaking');

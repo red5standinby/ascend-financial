@@ -1,0 +1,101 @@
+# OpenClaw / Chombi Full Debug Report
+**June 11–12, 2026**
+
+**Starting condition:** Gateway wouldn't bind port 18789. Every connection attempt returned ECONNREFUSED. launchd showed a live PID but the process was dying before it could listen.
+
+---
+
+## Layer 1 — launchd Environment Isolation ✅ Fixed
+
+The first real crash was the most fundamental: macOS LaunchAgents don't inherit your shell environment, so the DISCORD_BOT_TOKEN you had exported in the terminal never reached the gateway when launchd spawned it. Discord auth blew up immediately on every boot, the process exited before binding the port, and launchd's KeepAlive just kept respawning it in a crash loop every 10 seconds — making it look alive while never actually working.
+
+**Fix:** Added the token to `~/.openclaw/.env`, which the wrapper script sources before launching node. The gateway finally held the port.
+
+**Lesson learned:** The plist uses a wrapper script (`ai.openclaw.gateway-env-wrapper.sh`) that reads from `ai.openclaw.gateway.env` — a generated file you shouldn't hand-edit — and also from `~/.openclaw/.env`, which is the correct user-owned secrets file.
+
+---
+
+## Layer 2 — Config Schema Error ✅ Already resolved (pre-existing)
+
+The logs from early morning (00:50–00:54) showed a separate crash-loop era: `channels.discord.streaming: must be object`. This was a stale config key from schema drift — some earlier edit had left `streaming` as a scalar instead of an object. By the time we got there, it had already been auto-repaired (probably when `openclaw config patch` ran during the Discord setup). No action needed, but it accounted for the oldest layer of crash logs.
+
+---
+
+## Layer 3 — Token Hidden in /dev/null ✅ Diagnosed and bypassed
+
+The plist had `StandardErrorPath=/dev/null`, which was silently swallowing every startup error. This made diagnosis nearly impossible — all the meaningful crash output was being discarded, leaving only the INFO-level structured log which didn't capture auth failures. Running the gateway in the foreground was what finally made stderr visible and allowed us to see real error messages.
+
+**Lesson learned:** Change `StandardErrorPath` in the plist to an actual log file, e.g. `/Users/jaime/Library/Logs/openclaw/gateway-error.log`, so you never debug blind again.
+
+---
+
+## Layer 4 — Plugin Allowlist Blocking Discord ✅ Fixed
+
+This was the longest-running hidden blocker. Even after the token resolved correctly and the gateway ran clean, the Discord bot stayed offline with zero log output — no login attempt, no error, complete silence. The reason: the config had a `plugins.allow` list containing only `["deepseek","anthropic","google","ollama"]`. Discord wasn't on it, so the plugin was vetoed at load time, and `channels.discord.enabled: true` in the config meant nothing. The gateway had no Discord code to run.
+
+This was almost certainly written during the earlier provider-switching sessions (DeepSeek → Ollama → back) and Discord got left off the list as collateral damage.
+
+**Fix:** Added `discord` to the plugin allowlist. This was the turning point — the bot came online, sent a pairing code, and paired successfully.
+
+---
+
+## Layer 5 — DeepSeek API Key Missing ✅ Fixed
+
+Immediately after pairing, Chombi hit an API access error. The gateway model was `deepseek/deepseek-chat` (visible in every startup line the whole time), but no DeepSeek key existed in the environment. Generated a new key from platform.deepseek.com, added it to `~/.openclaw/.env`, restarted — Chombi became conversational.
+
+---
+
+## Layer 6 — Blank Slate / Memory Disconnection ⚠️ In progress
+
+Chombi came back online but with no memory, no persona, no context. Root causes were two distinct problems:
+
+1. **Workspace reset:** The workspace at `~/.openclaw/workspace/` was freshly initialized on Jun 11 12:28 during the debugging session — stock template files, blank USER.md, no commits in the git repo. Whatever was previously there was overwritten with no recovery path, because the repo had never had a single commit. The git repo existed but was empty — so `git checkout` couldn't help.
+
+2. **Vault path mismatch:** The real memory lived in the Obsidian vault — but the vault is at `~/my-vault/my-vault/` (nested), not `~/my-vault/`. If the agent was configured to read `~/my-vault/` it was reading an empty wrapper folder. All the actual memory files — working-context.md, mistakes.md, daily journals from April through June, current-state/context.md, current-state/projects.md — were one level deeper and never being read.
+
+**Fix applied:**
+- Created `~/.openclaw/workspace/MEMORY.md` pointing Chombi at the correct vault path and defining the read/write protocol on session start.
+- Committed the workspace to git so it can never be silently wiped again.
+- Sent Chombi the restore instruction to read its own vault and rewrite SOUL.md and USER.md from what it finds there.
+
+**Status:** Memory transplant in progress — awaiting confirmation that Chombi comes back sounding like Chombi after reading its own journals.
+
+---
+
+## Current State
+
+| Component | Status |
+|---|---|
+| Gateway (port 18789) | ✅ Stable, survives reboots |
+| launchd env isolation | ✅ Fixed via `~/.openclaw/.env` |
+| Discord plugin | ✅ Enabled, paired |
+| DeepSeek provider | ✅ API key set |
+| Chombi conversational | ✅ Responding |
+| Chombi memory/persona | ⚠️ Vault connected, restore in progress |
+
+---
+
+## Outstanding Housekeeping (non-urgent)
+
+1. **StandardErrorPath in plist:** Change from `/dev/null` to a real file. Would have saved 6 hours of blind diagnosis.
+
+2. **Plaintext secrets in openclaw.json:** `gateway.auth.token` and `models.providers.ollama.apiKey` are sitting in cleartext. Migrate to SecretRefs via `openclaw secrets configure`.
+
+3. **shopify-creds.md, credentials.md, gmail-tokens.json in the vault:** These are readable by Chombi and any plugin. Move to `~/.openclaw/.env` and reference as SecretRefs.
+
+4. **Memory search:** Currently set to "openai" provider with no key — semantic recall is silently off. Either set `OPENAI_API_KEY`, switch to a different provider, or disable it with `openclaw config set agents.defaults.memorySearch.enabled false`.
+
+5. **Commit the workspace regularly:** The git repo now has a baseline commit. Make committing Chombi's self-updates a habit — or instruct Chombi to auto-commit its workspace writes.
+
+---
+
+## Root Cause Summary
+
+This wasn't one bug. It was **four independent failures stacked on top of each other**, each hiding the next:
+
+1. **launchd** killed the process before it bound the port (so you saw ECONNREFUSED)
+2. **stderr** went to `/dev/null` (so you couldn't read the actual crash)
+3. The **Discord plugin** was allowlisted out of existence (so enabling the channel in config did nothing)
+4. The **workspace was wiped** and the vault path was wrong (so Chombi had no continuity)
+
+Any one of these alone would have been a 10-minute fix. Stacked, they looked like one opaque failure for the better part of a day. The foreground run was the diagnostic unlock — once stderr became visible, every subsequent layer became readable, and it was just a matter of peeling them in order.

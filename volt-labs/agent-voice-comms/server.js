@@ -14,7 +14,6 @@ import { createServer as createHttpsServer } from 'https';
 import { readFileSync, existsSync } from 'fs';
 import { WebSocketServer } from 'ws';
 import { createClient as createDeepgramClient } from '@deepgram/sdk';
-import { ElevenLabsClient } from 'elevenlabs';
 import { Readable } from 'stream';
 
 // ─── Config ────────────────────────────────────────────────────────────────
@@ -22,26 +21,42 @@ import { Readable } from 'stream';
 const PORT = process.env.PORT || 8766;
 const HTTPS_PORT = process.env.HTTPS_PORT || 8767;
 const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-const TTS_PROVIDER = process.env.TTS_PROVIDER || 'deepgram'; // 'deepgram' or 'elevenlabs'
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
 // ─── Services ──────────────────────────────────────────────────────────────
 
 let deepgram;
-let elevenlabs;
 
 if (DEEPGRAM_API_KEY) {
   deepgram = createDeepgramClient(DEEPGRAM_API_KEY);
-}
-
-if (ELEVENLABS_API_KEY) {
-  elevenlabs = new ElevenLabsClient({ apiKey: ELEVENLABS_API_KEY });
 }
 
 // ─── App ───────────────────────────────────────────────────────────────────
 
 const app = express();
 app.use(express.static('public'));
+
+// Also serve Volt Labs dashboard — accessible from the tunnel
+app.use('/dashboard', express.static('../dashboard'));
+
+// Route /team loads team.html explicitly
+app.get('/team', (req, res) => {
+  res.sendFile('team.html', { root: '../dashboard' });
+});
+app.get('/team.html', (req, res) => {
+  res.sendFile('team.html', { root: '../dashboard' });
+});
+// Route /trend for trend-tracker
+app.get('/trend', (req, res) => {
+  res.sendFile('trend-tracker.html', { root: '../dashboard' });
+});
+app.get('/trend-tracker.html', (req, res) => {
+  res.sendFile('trend-tracker.html', { root: '../dashboard' });
+});
+// Route dashboard root
+app.get('/index.html', (req, res) => {
+  res.sendFile('index.html', { root: '../dashboard' });
+});
 
 // On Railway: HTTP. Locally: HTTPS with self-signed cert.
 const hasCerts = existsSync('key.pem') && existsSync('cert.pem');
@@ -55,7 +70,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     deepgram: !!deepgram,
-    tts: TTS_PROVIDER + ' ' + (TTS_PROVIDER === 'deepgram' ? !!deepgram : !!elevenlabs),
+    tts: 'deepgram ' + !!deepgram,
   });
 });
 
@@ -76,6 +91,13 @@ function createDeepgramStream(onTranscript, onError) {
     encoding: 'linear16',
     sample_rate: 16000,
     channels: 1,
+  });
+
+  dgConnection.on('Metadata', (m) => {
+    console.log('[dg] metadata:', JSON.stringify(m).substring(0, 200));
+  });
+  dgConnection.on('UtteranceEnd', () => {
+    console.log('[dg] utterance end');
   });
 
   dgConnection.on('open', () => {
@@ -113,9 +135,7 @@ function createDeepgramStream(onTranscript, onError) {
 
 async function streamTTS(ws, text) {
   try {
-    if (TTS_PROVIDER === 'elevenlabs' && elevenlabs) {
-      return await elevenlabsTTS(ws, text);
-    } else if (deepgram) {
+    if (deepgram) {
       return await deepgramTTS(ws, text);
     }
     console.warn('[tts] no TTS provider available');
@@ -127,7 +147,7 @@ async function streamTTS(ws, text) {
 async function deepgramTTS(ws, text) {
   const result = await deepgram.speak.request(
     { text },
-    { model: 'aura-asteria-en', encoding: 'mp3' }
+    { model: 'aura-orion-en', encoding: 'mp3' }
   );
   const stream = await result.getStream();
   const reader = stream.getReader();
@@ -136,23 +156,6 @@ async function deepgramTTS(ws, text) {
     const { done, value } = await reader.read();
     if (done) break;
     chunks.push(value);
-  }
-  const audio = Buffer.concat(chunks);
-  if (ws.readyState === ws.OPEN && audio.length > 0) {
-    ws.send(audio);
-  }
-}
-
-async function elevenlabsTTS(ws, text, voice = '21m00Tcm4TlvDq8ikWAM') {
-  const audioStream = await elevenlabs.generate({
-    voice,
-    text,
-    model_id: 'eleven_turbo_v2',
-    output_format: 'mp3_44100_128',
-  });
-  const chunks = [];
-  for await (const chunk of audioStream) {
-    chunks.push(chunk);
   }
   const audio = Buffer.concat(chunks);
   if (ws.readyState === ws.OPEN && audio.length > 0) {
@@ -261,8 +264,8 @@ async function handleAgentMessage(ws, text) {
     // Send text reply to UI
     ws.send(JSON.stringify({ type: 'reply', text: reply }));
 
-    // Stream TTS audio back (Deepgram or ElevenLabs)
-    if (deepgram || elevenlabs) {
+    // Stream TTS audio back
+    if (deepgram) {
       setStatus('speaking');
       try {
         await streamTTS(ws, reply);
@@ -282,33 +285,35 @@ async function handleAgentMessage(ws, text) {
 // It runs inside the server process and uses OpenClaw's agent infrastructure.
 
 async function getAgentReply(text) {
-  // For now, process the text and generate a response
-  // This will evolve into a proper agent loop
-  const response = await generateResponse(text);
-  return response;
-}
-
-async function generateResponse(text) {
-  // Keep responses concise for TTS (200 chars or so)
-  const responses = {
-    greeting: /^(hey|hi|hello|yo|what'?s up|sup|howdy)(\s|$)/i,
-    status: /(how are|what are you doing|status|busy)/i,
-    thank_you: /(thanks|thank you|appreciate|ty)/i,
-    weather: /(weather|cold|hot|rain)/i,
-  };
-
-  if (responses.greeting.test(text)) {
-    return 'Hey Jaime. What are we working on?';
+  // Use DeepSeek for smart, contextual responses
+  if (!DEEPSEEK_API_KEY) {
+    return 'No API key configured.';
   }
-  if (responses.status.test(text)) {
-    return 'Right here with you. Voice link is live. What do you need?';
+  try {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + DEEPSEEK_API_KEY,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'You are Chombi, an AI assistant and business partner to Jaime, CEO of Volt Labs (an AI-native software studio). You work together running the company. Keep responses brief, warm, and conversational — under 2 sentences for quick replies, 3-4 max if explaining something. No markdown, no lists. Natural casual tone like a teammate.' },
+          { role: 'user', content: text }
+        ],
+        max_tokens: 150,
+        temperature: 0.7,
+        stream: false,
+      })
+    });
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim();
+    return content || 'Hmm, I didn\'t quite catch that. Try again?';
+  } catch (err) {
+    console.error('[llm] error:', err.message);
+    return 'Sorry, my brain hiccupped. Can you repeat that?';
   }
-  if (responses.thank_you.test(text)) {
-    return 'Anytime. That\'s what I\'m here for.';
-  }
-
-  // Default: give a short, useful response
-  return `I heard: "${text.slice(0, 80)}". I'm processing that now. Give me a moment.`;
 }
 
 // ─── Status tracking ────────────────────────────────────────────────────────
@@ -335,6 +340,6 @@ server.listen(listenPort, HOST, () => {
   const proto = hasCerts ? 'https' : 'http';
   console.log(`  → ${proto}://localhost:${listenPort}`);
   console.log(`  → STT: ${deepgram ? 'Deepgram ✓' : 'Deepgram ✗'}`);
-  console.log(`  → TTS: ${TTS_PROVIDER} ${TTS_PROVIDER === 'deepgram' && deepgram || TTS_PROVIDER === 'elevenlabs' && elevenlabs ? '✓' : '✗'}`);
+  console.log(`  → TTS: Deepgram ${deepgram ? '✓' : '✗'}`);
   console.log();
 });

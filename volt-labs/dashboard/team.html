@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Volt Labs ⚡ Team</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c0c10;
+      color: #c8c8d0;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0c0c10; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+
+    header {
+      background: linear-gradient(135deg, #0a0a14 0%, #1a1a2e 100%);
+      border-bottom: 2px solid #2a2a4a;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 16px; }
+    .logo span { color: #f5c518; }
+    .logo em { font-style: normal; color: #00b4d8; font-weight: 600; }
+    nav { display: flex; gap: 8px; }
+    nav a {
+      color: #8888a0; text-decoration: none; font-size: 12px;
+      padding: 5px 12px; border-radius: 5px; transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    nav a:hover, nav a.active { color: #f5c518; border-color: #f5c51833; background: #f5c5180a; }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+    /* ═══════════════════════════════════════════
+       OFFICE VIEW — top section, full scene
+       ═══════════════════════════════════════════ */
+    .office-view {
+      background: #080828;
+      border: 3px solid #3030a0;
+      border-bottom: none;
+      position: relative;
+      overflow: hidden;
+      height: 320px;
+      image-rendering: pixelated;
+    }
+    .office-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════
+       MENU SYSTEM — FF6 style below the office
+       ═══════════════════════════════════════════ */
+    .menu-container {
+      background: linear-gradient(180deg, #0a0a3e 0%, #060620 100%);
+      border: 3px solid;
+      border-image: linear-gradient(135deg, #4040c0, #2020a0, #4040c0) 1;
+      box-shadow: inset 0 0 30px rgba(0,0,100,0.3);
+      padding: 12px;
+    }
+    .menu-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: #f5c518;
+      text-align: center;
+      padding: 10px 0;
+      text-shadow: 2px 2px #000;
+      letter-spacing: 1px;
+      border-bottom: 2px solid #4040c0;
+      margin-bottom: 12px;
+    }
+
+    /* Command menu row */
+    .cmd-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .cmd-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      padding: 8px 16px;
+      background: #080828;
+      border: 2px solid #4040c0;
+      color: #c0c0f0;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .cmd-btn:hover, .cmd-btn.active {
+      background: #1a1a4e;
+      border-color: #f5c518;
+      color: #f5c518;
+    }
+    .cmd-btn .cursor-icon {
+      display: none;
+      margin-right: 4px;
+    }
+    .cmd-btn.active .cursor-icon {
+      display: inline;
+    }
+
+    /* Party grid */
+    .party-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .char-box {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: #080828;
+      border: 2px solid #3030a0;
+      min-height: 88px;
+    }
+    .char-portrait {
+      width: 60px; height: 72px;
+      background: #0a0a3e;
+      border: 2px solid #4040c0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pixel-avatar {
+      display: grid;
+      grid-template-columns: repeat(8, 3.5px);
+      grid-template-rows: repeat(10, 3.5px);
+      gap: 0;
+      transform: scale(1.6);
+      image-rendering: pixelated;
+    }
+    .pix { width: 3.5px; height: 3.5px; }
+    .pix-on { background: currentColor; }
+    .pix-off { background: transparent; }
+
+    .char-info { flex: 1; min-width: 0; }
+    .char-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f5c518;
+      letter-spacing: 0.5px;
+    }
+    .char-role { font-size: 10px; color: #8888c0; margin-bottom: 4px; }
+    .stat-row { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 10px; }
+    .stat-label { color: #00b4d8; width: 28px; font-size: 9px; }
+    .stat-bar {
+      flex: 1; height: 8px;
+      background: #1a1a3e;
+      border: 1px solid #3030a0;
+    }
+    .stat-fill { height: 100%; transition: width 0.5s; }
+    .fill-hp { background: linear-gradient(90deg, #ff4444, #ff6666); box-shadow: inset 0 0 4px #ff444488; }
+    .fill-mp { background: linear-gradient(90deg, #4444ff, #6666ff); box-shadow: inset 0 0 4px #4444ff88; }
+    .atb {
+      font-size: 8px;
+      padding: 2px 6px;
+      border: 1px solid #4040c0;
+      display: inline-block;
+      margin-top: 3px;
+    }
+    .atb-ready { color: #00ff88; border-color: #00ff88; }
+    .atb-busy { color: #f5c518; border-color: #f5c518; }
+    .atb-idle { color: #555570; border-color: #555570; }
+
+    .reserve-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: #555570;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .reserve-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    /* ── Dialog box ── */
+    .dialog-box {
+      margin-top: 10px;
+      padding: 12px;
+      background: #0a0a30;
+      border: 3px solid #4040c0;
+      border-top: 3px solid #c0c0ff;
+      min-height: 50px;
+      position: relative;
+    }
+    .dialog-box .speaker {
+      position: absolute;
+      top: -10px;
+      left: 14px;
+      background: #0a0a30;
+      padding: 0 6px;
+      color: #f5c518;
+      font-size: 10px;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .dialog-box .text {
+      font-size: 12px;
+      color: #c0c0f0;
+      line-height: 1.5;
+      min-height: 24px;
+    }
+    .dialog-box .cursor {
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    @media (max-width: 600px) {
+      .party-row { grid-template-columns: 1fr; }
+      .reserve-row { grid-template-columns: 1fr; }
+      .office-view { height: 220px; }
+      header { flex-direction: column; align-items: flex-start; }
+      header nav { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span>⚡</span>
+      <em>Volt Labs</em>
+      <span style="font-size:11px;color:#555570;font-weight:400;margin-left:4px;">HQ</span>
+    </div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="team.html" class="active">Team</a>
+      <a href="https://supplements-tide-former-acc.trycloudflare.com" target="_blank">Voice</a>
+      <a href="trend-tracker.html">Trend Tracker</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- ═══ OFFICE VIEW — Live scene at top ═══ -->
+    <div class="office-view" id="officeView">
+      <canvas class="office-canvas" id="officeCanvas"></canvas>
+    </div>
+
+    <!-- ═══ MENU SYSTEM — below ═══ -->
+    <div class="menu-container">
+      <div class="menu-title">⧫ COMMAND MENU ⧫</div>
+      <div class="cmd-row">
+        <div class="cmd-btn active"><span class="cursor-icon">▶</span> Party</div>
+        <div class="cmd-btn">Status</div>
+        <div class="cmd-btn">Mission</div>
+        <div class="cmd-btn">Items</div>
+        <div class="cmd-btn">Config</div>
+      </div>
+
+      <div class="party-row" id="activeParty"></div>
+      <div class="reserve-label">— RESERVE —</div>
+      <div class="reserve-row" id="reserveParty"></div>
+
+      <!-- Dialog -->
+      <div class="dialog-box">
+        <div class="speaker">CHOMBI</div>
+        <div class="text" id="dialog"><span class="cursor">▶</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════
+    // SPRITES & DATA
+    // ═══════════════════════════════════════════
+    const sprites = {
+      chombi: `00011000\n00111100\n00111100\n01111110\n11111111\n11011011\n01111110\n00011000\n00011000\n00011000`.split('\n').map(r=>r.trim()).join(''),
+      scout:  `00011000\n00111100\n01111110\n01111110\n11111111\n11111111\n01111110\n00011000\n10000001\n01000010`.split('\n').map(r=>r.trim()).join(''),
+      spark:  `00011000\n00111100\n01111110\n01111110\n11111111\n11111111\n11111111\n01111110\n00011000\n00011000`.split('\n').map(r=>r.trim()).join(''),
+      arc:    `00011000\n00111100\n01111110\n11111111\n11111111\n11111111\n01111110\n00111100\n00011000\n00100100`.split('\n').map(r=>r.trim()).join(''),
+      ohm:    `00011000\n00111100\n01111110\n01111110\n11111111\n11111111\n01111110\n00111100\n00011000\n01000010`.split('\n').map(r=>r.trim()).join(''),
+      surge:  `00011000\n00111100\n01111110\n11111111\n11111111\n11111111\n01111110\n00111100\n00011000\n00011000`.split('\n').map(r=>r.trim()).join(''),
+      pulse:  `00011000\n01111100\n01111110\n11111111\n11111111\n11111111\n01111110\n00111100\n00011000\n00011000`.split('\n').map(r=>r.trim()).join(''),
+    };
+
+    const team = [
+      { name:'Chombi',role:'CEO / Strategist',key:'chombi',color:'#f5c518',active:true, hp:100,mp:100,atb:'ready',emoji:'🧠', awake:true, busy:true, deskX:0 },
+      { name:'Scout',role:'Research Agent',key:'scout',color:'#00b4d8',active:true, hp:85,mp:70,atb:'busy',emoji:'🔍', awake:true, busy:true, deskX:1 },
+      { name:'Spark',role:'Creative Agent',key:'spark',color:'#ff66aa',active:true, hp:75,mp:90,atb:'idle',emoji:'✨', awake:true, busy:false, deskX:2 },
+      { name:'Arc',role:'Backend Agent',key:'arc',color:'#66ff88',active:true, hp:90,mp:65,atb:'busy',emoji:'⚙️', awake:true, busy:true, deskX:3 },
+      { name:'Ohm',role:'Infra Agent',key:'ohm',color:'#cc8844',active:false,hp:70,mp:60,atb:'idle',emoji:'🔧', awake:true, busy:false, deskX:4 },
+      { name:'Surge',role:'Frontend Agent',key:'surge',color:'#ff8844',active:false,hp:80,mp:85,atb:'ready',emoji:'🎨', awake:true, busy:false, deskX:5 },
+      { name:'Pulse',role:'Ops Agent',key:'pulse',color:'#bb88ff',active:false,hp:65,mp:50,atb:'idle',emoji:'📡', awake:false, busy:false, deskX:6 },
+    ];
+
+    const chombiLines = [
+      'Jaime\'s in the building. Mission green.',
+      'All systems nominal. What\'s the order?',
+      'Pipeline is charged and ready.',
+      'Voice link live. DeepSeek online.',
+      'Trend research updated. Got new angles.',
+      'Tunnel stable. Phone access good.',
+      'Burn rate: peanuts. We\'re lean.',
+      'Ready when you are, boss.',
+    ];
+
+    function renderSprite(str, color) {
+      let h = '<div class="pixel-avatar" style="color:'+color+'">';
+      for(let i=0;i<str.length;i++) h += '<div class="pix '+(str[i]==='1'?'pix-on':'pix-off')+'"></div>';
+      h += '</div>';
+      return h;
+    }
+
+    // ═══════════════════════════════════════════
+    // CANVAS — Live Office Scene
+    // ═══════════════════════════════════════════
+    const canvas = document.getElementById('officeCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Office layout: 7 desks along the floor
+    const DESK_W = 80;
+    const DESK_H = 90;
+    const DESK_GAP = 20;
+    const FLOOR_Y_OFFSET = 30; // room above floor for sprites walking
+
+    let animFrame;
+    let time = 0;
+    // Walking sprites: each agent has { x, y, dir, animPhase, moving }
+    const walkers = team.map((m,i) => ({
+      id: i,
+      key: m.key,
+      color: m.color,
+      emoji: m.emoji,
+      awake: m.awake,
+      busy: m.busy,
+      // Desk position
+      deskX: 60 + i * (DESK_W + DESK_GAP) + DESK_W/2,
+      // Walker state
+      x: 60 + i * (DESK_W + DESK_GAP) + DESK_W/2,
+      y: 0,
+      targetX: 60 + i * (DESK_W + DESK_GAP) + DESK_W/2,
+      moving: false,
+      dir: 1,
+      frame: 0,
+    }));
+
+    function initCanvas() {
+      const rect = document.getElementById('officeView').getBoundingClientRect();
+      const w = canvas.parentElement.clientWidth;
+      const h = canvas.parentElement.clientHeight;
+      canvas.width = w * 2; // retina
+      canvas.height = h * 2;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.scale(2, 2);
+    }
+
+    function drawOffice() {
+      const w = canvas.width / 2;
+      const h = canvas.height / 2;
+      ctx.clearRect(0, 0, w, h);
+
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#060620');
+      grad.addColorStop(0.6, '#0a0a34');
+      grad.addColorStop(1, '#0c0c18');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Floor line
+      const floorY = h - 24;
+      ctx.fillStyle = '#1a1a3e';
+      ctx.fillRect(0, floorY, w, 2);
+
+      // Desk row
+      const deskCount = team.length;
+      const totalWidth = deskCount * DESK_W + (deskCount - 1) * DESK_GAP;
+      const startX = (w - totalWidth) / 2;
+
+      for (let i = 0; i < deskCount; i++) {
+        const dx = startX + i * (DESK_W + DESK_GAP);
+        const dy = floorY - DESK_H - 20;
+        const m = team[i];
+
+        // Desk body
+        ctx.fillStyle = '#0c0c28';
+        ctx.fillRect(dx, dy + 65, DESK_W, 18);
+        ctx.strokeStyle = '#3030a0';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(dx, dy + 65, DESK_W, 18);
+
+        // Legs
+        ctx.fillStyle = '#202040';
+        ctx.fillRect(dx + 8, dy + 83, 6, 12);
+        ctx.fillRect(dx + DESK_W - 14, dy + 83, 6, 12);
+
+        // Monitor
+        const monitorOn = m.busy || m.atb === 'busy';
+        ctx.fillStyle = monitorOn ? '#0a2a3a' : '#0a0a18';
+        ctx.fillRect(dx + 20, dy + 30, 40, 30);
+        ctx.strokeStyle = monitorOn ? '#00b4d855' : '#202040';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(dx + 20, dy + 30, 40, 30);
+
+        // Monitor glow
+        if (monitorOn) {
+          ctx.fillStyle = `rgba(0, 180, 216, ${0.05 + Math.sin(time * 0.002) * 0.03})`;
+          ctx.fillRect(dx + 22, dy + 34, 36, 22);
+          // Screen content
+          ctx.fillStyle = '#00b4d8';
+          ctx.font = '7px monospace';
+          ctx.fillText('⡿⢾', dx + 30, dy + 52);
+        }
+
+        // Monitor stand
+        ctx.fillStyle = '#202040';
+        ctx.fillRect(dx + 34, dy + 60, 12, 8);
+        ctx.fillRect(dx + 28, dy + 68, 24, 4);
+
+        // Agent label on desk
+        ctx.fillStyle = m.active ? '#8888c0' : '#555570';
+        ctx.font = '7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(m.name, dx + DESK_W/2, dy + 92);
+
+        // ZZZ for asleep agents (with animation)
+        if (!m.awake) {
+          ctx.fillStyle = `rgba(85, 85, 160, ${0.4 + Math.sin(time * 0.003 + i) * 0.3})`;
+          ctx.font = '10px monospace';
+          const zOffset = Math.sin(time * 0.002 + i * 2) * 3;
+          ctx.fillText('💤', dx + DESK_W - 14, dy + zOffset);
+        }
+
+        // Busy indicator
+        if (m.busy) {
+          const pulse = 0.4 + Math.sin(time * 0.005 + i) * 0.3;
+          ctx.fillStyle = `rgba(245, 197, 24, ${pulse})`;
+          ctx.beginPath();
+          ctx.arc(dx + 8, dy + 4, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // ── Draw walking agents near their desks ──
+      for (let i = 0; i < walkers.length; i++) {
+        const wkr = walkers[i];
+        if (!wkr.awake) continue;
+
+        // Idle bob animation at desk
+        const bobY = Math.sin(time * 0.003 + i * 1.5) * 2;
+        const sx = wkr.deskX + DESK_W/2;
+        const sy = floorY - 12 + bobY;
+
+        // Draw the sprite as pixel art
+        const s = sprites[wkr.key];
+        if (s) {
+          const px = 3;
+          const baseX = sx - 14;
+          const baseY = sy - 18;
+          for (let row = 0; row < 10; row++) {
+            for (let col = 0; col < 8; col++) {
+              const idx = row * 8 + col;
+              if (s[idx] === '1') {
+                ctx.fillStyle = wkr.color;
+                ctx.globalAlpha = 0.85;
+                ctx.fillRect(baseX + col * px, baseY + row * px, px, px);
+              }
+            }
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // ── Chombi walking across the scene ──
+      const walkX = ((time * 0.03) % (w + 120)) - 60;
+      const walkY = floorY - 18;
+      ctx.fillStyle = '#f5c518';
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡', walkX, walkY + 4);
+
+      // Small trail
+      ctx.fillStyle = `rgba(245, 197, 24, ${0.1 + Math.sin(time * 0.01) * 0.08})`;
+      ctx.font = '10px monospace';
+      ctx.fillText('⚡', walkX - 16 + Math.sin(time * 0.02) * 4, walkY + Math.sin(time * 0.015) * 2);
+      ctx.fillText('⚡', walkX + 18 + Math.sin(time * 0.018 + 1) * 3, walkY + Math.sin(time * 0.012 + 0.5) * 2);
+
+      // ── Volt Labs sign at top center ──
+      ctx.fillStyle = '#f5c518';
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ VOLT LABS ⚡', w/2, 18);
+      ctx.fillStyle = '#3030a0';
+      ctx.font = '7px monospace';
+      ctx.fillText('SECOND FLOOR — AI DIVISION', w/2, 30);
+
+      // Random floating particles
+      for (let i = 0; i < 3; i++) {
+        const px = (Math.sin(time * 0.001 + i * 7) * 0.5 + 0.5) * w;
+        const py = (Math.cos(time * 0.002 + i * 3) * 0.5 + 0.5) * h * 0.5;
+        ctx.fillStyle = `rgba(0, 180, 216, ${0.03 + Math.sin(time * 0.004 + i) * 0.02})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function animateOffice(timestamp) {
+      time = timestamp || 0;
+      drawOffice();
+      animFrame = requestAnimationFrame(animateOffice);
+    }
+
+    initCanvas();
+    animateOffice(0);
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      initCanvas();
+    });
+
+    // ═══════════════════════════════════════════
+    // MENU RENDER
+    // ═══════════════════════════════════════════
+    function charBox(m) {
+      const atbCls = m.atb==='ready'?'atb-ready':m.atb==='busy'?'atb-busy':'atb-idle';
+      const sprite = renderSprite(sprites[m.key], m.color);
+      return `<div class="char-box">
+        <div class="char-portrait">${sprite}</div>
+        <div class="char-info">
+          <div class="char-name">${m.name}</div>
+          <div class="char-role">${m.role}</div>
+          <div class="stat-row"><span class="stat-label">HP</span><div class="stat-bar"><div class="stat-fill fill-hp" style="width:${m.hp}%"></div></div><span>${m.hp}</span></div>
+          <div class="stat-row"><span class="stat-label">MP</span><div class="stat-bar"><div class="stat-fill fill-mp" style="width:${m.mp}%"></div></div><span>${m.mp}</span></div>
+          <div class="atb ${atbCls}">${m.atb.toUpperCase()}</div>
+        </div>
+      </div>`;
+    }
+
+    function renderMenu() {
+      document.getElementById('activeParty').innerHTML = team.filter(m=>m.active).map(charBox).join('');
+      document.getElementById('reserveParty').innerHTML = team.filter(m=>!m.active).map(charBox).join('');
+    }
+    renderMenu();
+
+    // ═══════════════════════════════════════════
+    // DIALOG
+    // ═══════════════════════════════════════════
+    function startDialog() {
+      const el = document.getElementById('dialog');
+      let idx = 0;
+      function typeLine() {
+        const line = chombiLines[idx % chombiLines.length];
+        el.innerHTML = '';
+        let ci = 0;
+        function typeChar() {
+          if (ci < line.length) {
+            el.innerHTML += line[ci];
+            ci++;
+            setTimeout(typeChar, 25 + Math.random()*15);
+          } else {
+            el.innerHTML += '<span class="cursor">▶</span>';
+            setTimeout(() => { idx++; typeLine(); }, 3500);
+          }
+        }
+        typeChar();
+      }
+      typeLine();
+    }
+    startDialog();
+
+    // ── CMD button interactivity ──
+    document.querySelectorAll('.cmd-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cmd-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Quick feedback
+        const dialog = document.getElementById('dialog');
+        dialog.textContent = '『' + btn.textContent.trim() + '』';
+        dialog.innerHTML += '<span class="cursor">▶</span>';
+      });
+    });
+  </script>
+</body>
+</html>
