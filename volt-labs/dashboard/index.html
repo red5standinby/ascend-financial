@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volt Labs ⚡ Command Center</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c0c10;
+      color: #c8c8d0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0c0c10; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 4px; }
+
+    header {
+      background: linear-gradient(135deg, #0a0a14 0%, #1a1a2e 100%);
+      border-bottom: 2px solid #2a2a4a;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; }
+    .logo span { color: #f5c518; }
+    .logo em { font-style: normal; background: linear-gradient(135deg,#00b4d8,#0077b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    #clock { font-family: 'Courier New', monospace; font-size: 14px; color: #00b4d8; }
+    nav { display: flex; gap: 12px; }
+    nav a {
+      color: #8888a0; text-decoration: none; font-size: 13px;
+      padding: 6px 14px; border-radius: 6px; transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    nav a:hover, nav a.active { color: #f5c518; border-color: #f5c51833; background: #f5c5180a; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    .section-title {
+      font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+      color: #555570; margin: 32px 0 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, #2a2a4a, transparent);
+    }
+
+    /* ── Cards Grid ── */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+    .card {
+      background: linear-gradient(145deg, #14141e, #1a1a28);
+      border: 1px solid #2a2a3e;
+      border-radius: 12px;
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .card:hover { border-color: #3a3a5e; transform: translateY(-2px); }
+    .card.expanded {
+      grid-column: 1 / -1;
+      border-color: #f5c51844;
+    }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card-header h3 { font-size: 15px; font-weight: 600; color: #e0e0f0; }
+    .card .sub { font-size: 12px; color: #707090; margin-top: 4px; }
+    .card .status-badge {
+      display: inline-block; font-size: 11px; padding: 3px 10px;
+      border-radius: 20px; font-weight: 500; white-space: nowrap;
+    }
+    .badge-live { background: #00b4d833; color: #00b4d8; }
+    .badge-standby { background: #55557033; color: #8888a0; }
+    .badge-ship { background: #f5c51820; color: #f5c518; }
+
+    .card .expand-icon {
+      font-size: 16px; color: #555570;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .card.expanded .expand-icon { transform: rotate(180deg); color: #f5c518; }
+    .card .badge-row { display: flex; gap: 6px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+
+    /* ── Expanded Detail Panel ── */
+    .detail-panel {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #2a2a4a;
+    }
+    .card.expanded .detail-panel { display: block; }
+
+    .detail-panel h4 {
+      font-size: 12px; color: #8888a0; text-transform: uppercase; letter-spacing: 1px;
+      margin: 14px 0 8px;
+    }
+    .detail-panel h4:first-child { margin-top: 0; }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 6px; top: 4px; bottom: 4px;
+      width: 2px; background: #2a2a4a;
+    }
+    .tl-item {
+      position: relative;
+      padding: 6px 0 6px 12px;
+      font-size: 12px;
+      color: #8888a0;
+    }
+    .tl-item::before {
+      content: '';
+      position: absolute; left: -16px; top: 11px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #2a2a4a;
+    }
+    .tl-item.done::before { background: #00b4d8; }
+    .tl-item.current::before { background: #f5c518; box-shadow: 0 0 8px #f5c51888; }
+    .tl-item.done { color: #c0c0d0; }
+    .tl-item.current { color: #f5c518; font-weight: 500; }
+    .tl-item .tl-date { font-size: 10px; color: #555570; margin-right: 8px; }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 8px; background: #1a1a2e; border-radius: 4px; overflow: hidden; margin: 6px 0;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, #00b4d8, #f5c518);
+      transition: width 0.5s;
+    }
+
+    /* Asset links row */
+    .asset-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .asset-link {
+      background: #1a1a28; border: 1px solid #2a2a3e;
+      padding: 6px 14px; border-radius: 6px;
+      color: #00b4d8; text-decoration: none;
+      font-size: 12px; transition: all 0.15s;
+    }
+    .asset-link:hover { border-color: #00b4d8; background: #00b4d810; }
+    .asset-link .label { color: #8888a0; margin-right: 4px; }
+
+    /* Tags */
+    .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; border: 1px solid #2a2a3e; }
+    .tag-tech { color: #00b4d8; border-color: #00b4d833; }
+    .tag-feat { color: #66ff88; border-color: #66ff8833; }
+    .tag-wip { color: #f5c518; border-color: #f5c51833; }
+
+    /* ── Agent Strip ── */
+    .team-strip { display: flex; gap: 10px; flex-wrap: wrap; }
+    .agent-tag {
+      display: flex; align-items: center; gap: 8px;
+      background: #1a1a28; border: 1px solid #2a2a3e;
+      padding: 8px 14px; border-radius: 8px; font-size: 13px;
+    }
+    .agent-tag .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-ready { background: #00ff88; box-shadow: 0 0 6px #00ff8844; }
+    .dot-busy { background: #f5c518; box-shadow: 0 0 6px #f5c51844; }
+    .dot-idle { background: #555570; }
+    .agent-tag .name { font-weight: 500; color: #e0e0f0; }
+    .agent-tag .role { font-size: 11px; color: #707090; }
+
+    /* ── Expenses ── */
+    .expense-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .expense-card {
+      background: #1a1a28; border: 1px solid #2a2a3e; border-radius: 10px;
+      padding: 16px; text-align: center;
+    }
+    .expense-card .amt { font-size: 20px; font-weight: 700; color: #e0e0f0; }
+    .expense-card .label { font-size: 11px; color: #707090; margin-top: 4px; }
+
+    /* ── Quick Links ── */
+    .quick-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-links a {
+      background: #1a1a28; border: 1px solid #2a2a3e; padding: 8px 16px;
+      border-radius: 8px; color: #8888a0; text-decoration: none;
+      font-size: 13px; transition: all 0.2s;
+    }
+    .quick-links a:hover { border-color: #f5c51844; color: #f5c518; }
+
+    /* ── Roadmap ── */
+    .roadmap { display: flex; flex-direction: column; gap: 10px; }
+    .phase {
+      background: #1a1a28; border: 1px solid #2a2a3e; border-radius: 10px; padding: 16px;
+    }
+    .phase h4 { font-size: 14px; color: #e0e0f0; margin-bottom: 4px; }
+    .phase .phase-sub { font-size: 12px; color: #707090; margin-bottom: 8px; }
+    .phase .bar { height: 6px; background: #2a2a3a; border-radius: 3px; overflow: hidden; }
+    .phase .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg,#00b4d8,#0077b6); }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .header-right { width: 100%; flex-direction: column; align-items: flex-start; gap: 8px; }
+      nav { flex-wrap: wrap; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><span>⚡</span><em>Volt Labs</em><span style="font-size:12px;color:#555570;font-weight:400;margin-left:4px;">Command Center</span></div>
+    <div class="header-right">
+      <div id="clock">--:--:--</div>
+      <nav>
+        <a href="index.html" class="active">Dashboard</a>
+        <a href="team.html">Team</a>
+        <a href="https://supplements-tide-former-acc.trycloudflare.com" target="_blank">Voice</a>
+        <a href="trend-tracker.html">Trend Tracker</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="section-title">⚡ Agent Status</div>
+    <div class="team-strip" id="agent-strip"></div>
+
+    <div class="section-title">📦 Project Pipeline</div>
+    <div class="grid" id="project-grid"></div>
+
+    <div class="section-title">💰 Burn Rate</div>
+    <div class="expense-grid" id="expense-grid"></div>
+
+    <div class="section-title">🔗 Quick Links</div>
+    <div class="quick-links" id="links"></div>
+
+    <div class="section-title">🗺️ Roadmap</div>
+    <div class="roadmap" id="roadmap"></div>
+  </div>
+
+  <script>
+    // ── Clock ──
+    function updateClock() {
+      clock.textContent = new Date().toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/New_York' }) + ' ET';
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── Data ──
+    const agents = [
+      { name:'Chombi',role:'CEO',status:'ready' },
+      { name:'Scout',role:'Research',status:'busy' },
+      { name:'Spark',role:'Creative',status:'idle' },
+      { name:'Arc',role:'Backend',status:'busy' },
+      { name:'Ohm',role:'Infra',status:'idle' },
+      { name:'Surge',role:'Frontend',status:'ready' },
+      { name:'Pulse',role:'Ops',status:'idle' },
+    ];
+
+    const projects = [{
+      id:'trend-tracker',
+      title:'Trend Tracker SPA',
+      desc:'Niche research for POD t-shirts. Live on GitHub Pages.',
+      status:'live',
+      progress:90,
+      tags:['Frontend','POD','Research'],
+      timeline:[
+        { date:'May 24', text:'Initial prototype — keyword research tool', done:true },
+        { date:'May 27', text:'GitHub Pages deployment + mobile responsive', done:true },
+        { date:'Jun 5', text:'Dashboard integration, trend export', done:true },
+        { date:'Next', text:'Auto-export to Shopify product drafts', done:false, current:true },
+        { date:'TBD', text:'Trend alerts + email digests', done:false },
+      ],
+      assets:[
+        { url:'https://red5standinby.github.io/trend-tracker/', text:'Live App', label:'Open' },
+        { url:'https://github.com/red5standinby/trend-tracker', text:'GitHub', label:'Repo' },
+      ]
+    },{
+      id:'voice-comms',
+      title:'Agent Voice Comms',
+      desc:'Real-time voice agent: Deepgram STT → DeepSeek → Deepgram TTS via Cloudflare.',
+      status:'live',
+      progress:85,
+      tags:['Voice','Deepgram','DeepSeek','WebSocket'],
+      timeline:[
+        { date:'Jun 12', text:'Initial server + WebSocket setup', done:true },
+        { date:'Jun 13', text:'Deepgram STT/TTS pipeline working', done:true },
+        { date:'Jun 13', text:'Replaced Ollama with DeepSeek API', done:true },
+        { date:'Jun 13', text:'AudioWorklet mobile audio capture fix', done:true },
+        { date:'Jun 13', text:'Cloudflare tunnel — accessible from anywhere', done:true },
+        { date:'Next', text:'Push-to-talk mode for reliability', done:false, current:true },
+        { date:'TBD', text:'Persistent conversation memory', done:false },
+      ],
+      assets:[
+        { url:'https://supplements-tide-former-acc.trycloudflare.com', text:'Voice App', label:'Live' },
+        { url:'http://localhost:8767/health', text:'Health Check', label:'Status' },
+        { url:'https://github.com/red5standinby/agent-voice-comms', text:'GitHub', label:'Repo' },
+      ]
+    },{
+      id:'lunar-pixel',
+      title:'Lunar Pixel — POD Store',
+      desc:'Dad tees, retro gamer/Y2K, mom lifestyle. Shopify + Printful + Printify.',
+      status:'standby',
+      progress:30,
+      tags:['Shopify','Printful','Printify','POD'],
+      timeline:[
+        { date:'May 24', text:'Shopify store created, theme selected', done:true },
+        { date:'May 27', text:'T-shirt niche research with Trend Tracker', done:true },
+        { date:'Jun 13', text:'5+ products uploaded, Printify installed and active', done:true },
+        { date:'Next', text:'Sample order + quality check', done:false, current:true },
+        { date:'TBD', text:'Marketing launch — social + ads', done:false },
+      ],
+      assets:[
+        { url:'https://lunarpixel.com', text:'Storefront', label:'URL TBD' },
+        { url:'https://www.shopify.com/admin', text:'Shopify Admin', label:'Admin' },
+        { url:'https://printify.com/app/', text:'Printify Dashboard', label:'Printify' },
+      ]
+    },{
+      id:'property-mgmt',
+      title:'Property Management Platform',
+      desc:'Jaime\'s design concept. Multi-property dashboards.',
+      status:'standby',
+      progress:5,
+      tags:['Web App','Dashboard'],
+      timeline:[
+        { date:'May 29', text:'Design concept handed off to Chombi', done:true },
+        { date:'Next', text:'Scoping doc + tech stack decision', done:false, current:true },
+        { date:'TBD', text:'MVP build start', done:false },
+      ],
+      assets:[]
+    },{
+      id:'magnolia-cookies',
+      title:'Magnolia Made Cookies 🍪',
+      desc:'Artisanal sugar cookie home bakery. Laura\'s kitchen, Connecticut.',
+      status:'ship',
+      progress:85,
+      tags:['Brand','Storefront','Bakery'],
+      timeline:[
+        { date:'Jun 13', text:'Competitive research + branding direction', done:true },
+        { date:'Jun 14', text:'Full landing page built + GitHub repo live', done:true },
+        { date:'Jun 14', text:'Waiting on Pages deploy — pending', done:false, current:true },
+        { date:'Next', text:'Formspree setup, gallery photos, social links', done:false },
+      ],
+      assets:[
+        { url:'https://github.com/red5standinby/magnolia-made-cookies', text:'GitHub Repo', label:'Repo' },
+        { url:'https://red5standinby.github.io/magnolia-made-cookies/', text:'Live Site', label:'Pages' },
+      ]
+    },{
+      id:'website-rebuilder',
+      title:'Website Rebuilder',
+      desc:'AI-powered site reconstruction.',
+      status:'standby',
+      progress:3,
+      tags:['AI','Dev Tool'],
+      timeline:[
+        { date:'Next', text:'Explore existing tools + stack options', done:false, current:true },
+      ],
+      assets:[]
+    }];
+
+    const expenses = [
+      { amt:'$20/mo', label:'Deepgram API' },
+      { amt:'$~2/mo', label:'DeepSeek (pay-as-you-go)' },
+      { amt:'$0', label:'Cloudflare Tunnel' },
+      { amt:'$20/mo', label:'Shopify Basic' },
+      { amt:'$0', label:'GitHub Pages' },
+      { amt:'$0', label:'Railway (free tier)' },
+    ];
+
+    const links = [
+      { url:'https://github.com/red5standinby/trend-tracker', text:'GitHub — Trend Tracker' },
+      { url:'https://github.com/red5standinby/agent-voice-comms', text:'GitHub — Voice Comms' },
+      { url:'https://railway.app/project/747cb6e9', text:'Railway — Hear Me Now' },
+      { url:'https://console.deepgram.com', text:'Deepgram Console' },
+      { url:'https://platform.deepseek.com', text:'DeepSeek Platform' },
+      { url:'http://localhost:8767/health', text:'Voice Server Health' },
+      { url:'/team', text:'HQ Team View' },
+    ];
+
+    const roadmap = [
+      { title:'Phase 1 — Foundation', desc:'Voice agent, storefront, market research', pct:70 },
+      { title:'Phase 2 — Growth', desc:'Agent autonomy, automated POD, client pipeline', pct:20 },
+      { title:'Phase 3 — Scale', desc:'Multi-agent production, SaaS products, revenue', pct:5 },
+    ];
+
+    // ── Render ──
+    function render() {
+      // Agent strip
+      document.getElementById('agent-strip').innerHTML = agents.map(a =>
+        `<div class="agent-tag"><span class="dot dot-${a.status}"></span><span class="name">${a.name}</span><span class="role">${a.role}</span></div>`
+      ).join('');
+
+      // Project cards
+      const grid = document.getElementById('project-grid');
+      grid.innerHTML = projects.map(p => {
+        const badgeClass = p.status === 'live' ? 'badge-live' : p.status === 'ship' ? 'badge-ship' : 'badge-standby';
+        const badgeText = p.status === 'live' ? '🟢 Live' : p.status === 'ship' ? '🚀 Ship' : '◽ Standby';
+        const tags = p.tags.map(t => `<span class="tag tag-tech">${t}</span>`).join('');
+        const timeline = p.timeline.map(t => {
+          const cls = t.current ? 'current' : t.done ? 'done' : '';
+          return `<div class="tl-item ${cls}"><span class="tl-date">${t.date}</span>${t.text}</div>`;
+        }).join('');
+        const assets = p.assets.map(a => `<a href="${a.url}" target="_blank" class="asset-link"><span class="label">${a.label}</span>${a.text}</a>`).join('');
+        return `<div class="card" data-id="${p.id}" onclick="toggleCard('${p.id}')">
+          <div class="card-header">
+            <div>
+              <h3>${p.title}</h3>
+              <div class="sub">${p.desc}</div>
+              <div class="badge-row">
+                <span class="status-badge ${badgeClass}">${badgeText}</span>
+                ${tags}
+              </div>
+            </div>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="detail-panel">
+            <h4>Progress — ${p.progress}%</h4>
+            <div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%"></div></div>
+            <h4>Timeline</h4>
+            <div class="timeline">${timeline}</div>
+            ${assets ? `<h4>Assets &amp; Links</h4><div class="asset-row">${assets}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+      // Expenses
+      document.getElementById('expense-grid').innerHTML = expenses.map(e =>
+        `<div class="expense-card"><div class="amt">${e.amt}</div><div class="label">${e.label}</div></div>`
+      ).join('');
+
+      // Quick links
+      document.getElementById('links').innerHTML = links.map(l =>
+        `<a href="${l.url}" target="_blank">${l.text}</a>`
+      ).join('');
+
+      // Roadmap
+      document.getElementById('roadmap').innerHTML = roadmap.map(p =>
+        `<div class="phase">
+          <h4>${p.title}</h4>
+          <div class="phase-sub">${p.desc} — ${p.pct}%</div>
+          <div class="bar"><div class="bar-fill" style="width:${p.pct}%"></div></div>
+        </div>`
+      ).join('');
+    }
+
+    function toggleCard(id) {
+      const el = document.querySelector(`[data-id="${id}"]`);
+      if (!el) return;
+      const wasExpanded = el.classList.contains('expanded');
+      // Close all others
+      document.querySelectorAll('.card.expanded').forEach(c => c.classList.remove('expanded'));
+      if (!wasExpanded) el.classList.add('expanded');
+    }
+
+    render();
+  </script>
+</body>
+</html>
