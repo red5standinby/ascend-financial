@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ascend Financial Network | North Haven, CT Mortgage Lender</title>
+  <meta name="description" content="Connecticut mortgage lender with 20+ years experience. Full suite of loan programs — FHA, VA, USDA, jumbo, conventional. NMLS #75819." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset ── */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1c1814;background:#fff;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+    /* ── System ── */
+    :root{
+      --cream:#f9f7f4;
+      --cream-alt:#f4f1ea;
+      --warm-white:#fefcf9;
+      --ink:#1c1814;
+      --ink-soft:#3d3527;
+      --ink-muted:#8a7e6b;
+      --ink-light:#b8ad9a;
+      --accent:#a5382a;
+      --accent-hover:#8a2e22;
+      --accent-soft:rgba(165,56,42,.07);
+      --border:#e6e0d6;
+      --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+      --radius:0px;
+    }
+
+    img{max-width:100%;display:block}
+
+    /* ── Containers ── */
+    .w{max-width:1120px;margin:0 auto;padding:0 24px}
+    .w-narrow{max-width:720px;margin:0 auto;padding:0 24px}
+
+    /* ── Typography ── */
+    .serif{font-family:'DM Serif Display',Georgia,serif}
+    .serif-i{font-family:'DM Serif Display',Georgia,serif;font-style:italic}
+
+    h1{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:400;line-height:1.15;color:var(--ink);letter-spacing:-.3px}
+    h2{font-family:'DM Serif Display',Georgia,serif;font-size:clamp(1.3rem,2.8vw,1.75rem);font-weight:400;line-height:1.2;color:var(--ink)}
+    h3{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;font-weight:400;line-height:1.3;color:var(--ink)}
+    h4{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ink)}
+    p{color:var(--ink-soft);font-size:.92rem;line-height:1.7}
+    p.lg{font-size:1rem;}
+    a{color:var(--accent);transition:color .2s}
+    a:hover{color:var(--accent-hover)}
+
+    .label{
+      display:inline-block;
+      font-size:.65rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:2.5px;
+      color:var(--ink-muted);
+      margin-bottom:12px;
+    }
+    .label::after{
+      content:'';
+      display:block;
+      width:24px;
+      height:2px;
+      background:var(--accent);
+      margin-top:6px;
+    }
+
+    /* ── Buttons ── */
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:14px 32px;
+      font-family:'Inter',sans-serif;
+      font-size:.85rem;
+      font-weight:600;
+      text-decoration:none;
+      transition:all .2s;
+      cursor:pointer;
+      border:none;
+    }
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{background:var(--accent-hover);color:#fff}
+    .btn-secondary{background:var(--ink);color:#fff}
+    .btn-secondary:hover{background:#3d3226;color:#fff}
+    .btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+    .btn-outline:hover{background:var(--ink);color:#fff}
+    .btn-sm{padding:10px 24px;font-size:.8rem}
+
+    /* ── Top bar ── */
+    .top-bar{
+      background:var(--ink);
+      color:rgba(255,255,255,.5);
+      font-size:.7rem;
+      font-weight:500;
+      padding:8px 0;
+      letter-spacing:.5px;
+    }
+    .top-bar .w{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+    .top-bar a{color:rgba(255,255,255,.7);text-decoration:none}
+    .top-bar a:hover{color:#fff}
+
+    /* ── Header ── */
+    header{
+      background:var(--warm-white);
+      border-bottom:1px solid var(--border);
+    }
+    header .w{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding-top:20px;
+      padding-bottom:20px;
+    }
+    .logo{text-decoration:none;display:flex;flex-direction:column}
+    .logo-row{display:flex;align-items:baseline;gap:2px}
+    .logo-mark{
+      font-family:'Oswald',sans-serif;
+      font-size:1.55rem;
+      font-weight:600;
+      color:var(--accent);
+      line-height:1;
+      letter-spacing:0;
+      text-transform:uppercase;
+    }
+    .logo-main{
+      font-family:'Oswald',sans-serif;
+      font-size:1.05rem;
+      font-weight:500;
+      color:var(--ink);
+      line-height:1.05;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+    }
+    .logo-sub{
+      font-size:.62rem;
+      color:var(--ink-muted);
+      letter-spacing:2px;
+      text-transform:uppercase;
+      margin-top:4px;
+    }
+
+    nav{display:flex;align-items:center;gap:32px}
+    nav a{
+      color:var(--ink-soft);
+      text-decoration:none;
+      font-size:.82rem;
+      font-weight:500;
+      padding:4px 0;
+      border-bottom:1.5px solid transparent;
+      transition:color .2s,border-color .2s;
+    }
+    nav a:hover{color:var(--accent);border-color:var(--accent)}
+    nav .btn{font-size:.8rem;padding:10px 24px}
+
+    /* ── Hero ── */
+    .hero{
+      padding:80px 0 72px;
+      background:var(--warm-white);
+      border-bottom:1px solid var(--border);
+    }
+    .hero .w{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+    .hero h1{margin-bottom:16px}
+    .hero h1 span{color:var(--accent)}
+    .hero p{font-size:1.05rem;margin-bottom:28px;max-width:520px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .hero-meta{
+      margin-top:32px;
+      display:flex;gap:24px;flex-wrap:wrap;
+      font-size:.78rem;color:var(--ink-muted)
+    }
+    .hero-meta span{display:flex;align-items:center;gap:6px}
+    .hero-meta span::before{content:'';display:inline-block;width:4px;height:4px;background:var(--accent);border-radius:50%}
+
+    .hero-visual{
+      background:var(--cream);
+      padding:40px;
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
+    }
+    .hero-visual .quote{
+      font-family:'DM Serif Display',Georgia,serif;
+      font-size:1.2rem;
+      font-style:italic;
+      color:var(--ink);
+      line-height:1.4;
+      margin-bottom:16px;
+    }
+    .hero-visual .attribution{color:var(--ink-muted);font-size:.8rem}
+    .hero-visual .attribution strong{color:var(--ink)}
+    .hero-visual .trust-strip{
+      margin-top:24px;
+      padding-top:20px;
+      border-top:1px solid var(--border);
+      display:flex;gap:16px;flex-wrap:wrap;
+    }
+    .hero-visual .trust-strip span{
+      font-size:.7rem;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      color:var(--ink-muted);
+    }
+
+    /* ── Sections ── */
+    section{padding:80px 0}
+    section.alt{background:var(--cream)}
+
+    .section-head{margin-bottom:48px}
+    .section-head h2{margin-bottom:8px}
+    .section-head p{max-width:560px}
+
+    /* ── Stats ── */
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+    @media(max-width:700px){.stat-grid{grid-template-columns:1fr}}
+    .stat-card{
+      background:#fff;
+      padding:32px 28px;
+      border:1px solid var(--border);
+      text-align:center;
+    }
+    .stat-card .num{
+      font-family:'DM Serif Display',Georgia,serif;
+      font-size:2rem;
+      color:var(--accent);
+      line-height:1;
+      margin-bottom:4px;
+    }
+    .stat-card .lbl{font-size:.85rem;color:var(--ink-muted)}
+    .stat-card p{margin-top:12px;font-size:.85rem;color:var(--ink-soft)}
+
+    /* ── Programs ── */
+    .prog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
+    @media(max-width:700px){.prog-grid{grid-template-columns:1fr}}
+    .prog-group{}
+    .prog-group h3{font-size:.85rem;font-weight:700;margin-bottom:2px;color:var(--ink)}
+    .prog-group .sub{font-size:.8rem;color:var(--ink-muted);font-style:italic;margin-bottom:10px}
+    .prog-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 0;border-bottom:1px solid var(--border);
+      font-size:.88rem;color:var(--ink-soft)
+    }
+    .prog-row:first-of-type{border-top:1px solid var(--border)}
+    .prog-row .tag{
+      font-size:.6rem;font-weight:700;
+      text-transform:uppercase;letter-spacing:1px;
+      color:var(--accent);
+      background:var(--accent-soft);
+      padding:3px 10px;
+    }
+
+    /* ── Calculator ── */
+    .calc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+    @media(max-width:700px){.calc-wrap{grid-template-columns:1fr}}
+    .calc-form{display:flex;flex-direction:column;gap:16px}
+    .calc-form label{font-size:.8rem;font-weight:600;color:var(--ink);margin-bottom:2px;display:block}
+    .calc-form .input-group{display:flex;align-items:center;border:1px solid var(--border);background:#fff;max-width:100%}
+    .calc-form .input-group span{background:var(--cream);padding:8px 10px;font-size:.8rem;color:var(--ink-muted);font-weight:500;border-right:1px solid var(--border);min-width:28px;text-align:center;flex-shrink:0}
+    .calc-form .input-group input{flex:1;border:none;padding:8px 10px;font-size:.85rem;font-family:'Inter',sans-serif;color:var(--ink);background:transparent;outline:none;min-width:0;width:100%}
+    .calc-form .input-group input:focus{color:var(--accent)}
+    .calc-form .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .calc-result{padding:32px;border:1px solid var(--border);background:#fff;text-align:center}
+    .calc-result .big{font-family:'DM Serif Display',Georgia,serif;font-size:2rem;color:var(--accent);line-height:1;margin-bottom:4px}
+    .calc-result .lbl{font-size:.8rem;color:var(--ink-muted);margin-bottom:20px}
+    .calc-result .detail{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--ink-soft)}
+    .calc-result .detail:last-of-type{border-bottom:none}
+    .calc-result .detail span:last-child{font-weight:600;color:var(--ink)}
+    .calc-note{margin-top:12px;font-size:.75rem;color:var(--ink-light);font-style:italic}
+
+    /* ── Rate Dashboard ── */
+    .rate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    @media(max-width:800px){.rate-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:500px){.rate-grid{grid-template-columns:1fr}}
+    .rate-card{background:#fff;border:1px solid var(--border);padding:24px 20px;text-align:center}
+    .rate-card .name{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-muted);margin-bottom:4px}
+    .rate-card .rate{font-family:'DM Serif Display',Georgia,serif;font-size:1.5rem;color:var(--ink);line-height:1;margin-bottom:2px}
+    .rate-card .apr{font-size:.72rem;color:var(--ink-light);font-style:italic;margin-bottom:8px}
+    .rate-card .tag{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);background:var(--accent-soft);padding:2px 10px;display:inline-block}
+    .rate-updated{text-align:center;margin-top:24px;font-size:.75rem;color:var(--ink-light);font-style:italic}
+
+    /* ── Blog Feed ── */
+    .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+    @media(max-width:800px){.blog-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:550px){.blog-grid{grid-template-columns:1fr}}
+    .blog-card{background:#fff;border:1px solid var(--border);padding:28px;display:flex;flex-direction:column}
+    .blog-card .date{font-size:.7rem;color:var(--ink-muted);font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+    .blog-card h3{font-family:'DM Serif Display',Georgia,serif;font-size:1rem;font-weight:400;color:var(--ink);margin-bottom:6px;line-height:1.3}
+    .blog-card p{font-size:.82rem;color:var(--ink-soft);margin-bottom:14px;line-height:1.6;flex:1}
+    .blog-card .read-more{font-size:.8rem;font-weight:600;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+    .blog-card .read-more:hover{color:var(--accent-hover)}
+    .blog-more{text-align:center;margin-top:32px}
+    .blog-more a{font-size:.9rem;font-weight:600;color:var(--accent);text-decoration:none}
+    .blog-more a:hover{color:var(--accent-hover)}
+
+    /* ── Team ── */
+    .team-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+    @media(max-width:700px){.team-grid{grid-template-columns:1fr}}
+    .team-card{
+      background:#fff;
+      border:1px solid var(--border);
+      padding:32px;
+    }
+    .team-card .name{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--ink);margin-bottom:2px}
+    .team-card .role{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:2px}
+    .team-card .nmls{font-size:.72rem;color:var(--ink-muted);margin-bottom:14px}
+    .team-card .bio{font-size:.88rem;color:var(--ink-soft);line-height:1.7}
+    .team-card .bio strong{color:var(--ink)}
+    .team-cta{
+      grid-column:1/-1;
+      text-align:center;
+      padding:24px 0 0;
+      border-top:1px solid var(--border);
+      font-size:.9rem;
+      font-style:italic;
+      color:var(--ink-muted);
+    }
+    .team-cta strong{color:var(--ink);font-style:normal}
+
+    /* ── Trust Band ── */
+    .trust-band{
+      background:var(--ink);
+      color:#fff;
+      padding:40px 0;
+      text-align:center;
+    }
+    .trust-band .w{display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
+    .trust-band span{
+      font-size:.78rem;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:1.5px;
+      color:rgba(255,255,255,.7);
+      display:flex;align-items:center;gap:8px;
+    }
+    .trust-band span::before{
+      content:'';
+      display:inline-block;
+      width:6px;height:6px;
+      background:var(--accent);
+      border-radius:50%;
+    }
+
+    /* ── CTA ── */
+    .cta{
+      text-align:center;
+      padding:80px 0;
+    }
+    .cta h2{margin-bottom:10px}
+    .cta p{max-width:480px;margin:0 auto 28px;font-size:.95rem}
+    .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+    .cta address{font-style:normal;color:var(--ink-muted);font-size:.85rem}
+    .cta address strong{color:var(--ink)}
+
+    /* ── Footer ── */
+    footer{
+      background:var(--ink);
+      color:rgba(255,255,255,.5);
+      padding:48px 0 32px;
+      font-size:.82rem;
+    }
+    footer .w{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px}
+    @media(max-width:700px){footer .w{grid-template-columns:1fr}}
+    footer h4{color:#fff;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+    footer a{color:rgba(255,255,255,.6);text-decoration:none}
+    footer a:hover{color:var(--accent)}
+    footer .eho{
+      grid-column:1/-1;
+      text-align:center;
+      margin-top:32px;
+      padding-top:20px;
+      border-top:1px solid rgba(255,255,255,.1);
+      font-size:.75rem;
+    }
+
+    /* ── Animations ── */
+    .fade-up{
+      opacity:0;transform:translateY(24px);
+      transition:opacity .6s ease,transform .6s ease
+    }
+    .fade-up.in{opacity:1;transform:translateY(0)}
+    .delay-1{transition-delay:.1s}
+    .delay-2{transition-delay:.2s}
+    .delay-3{transition-delay:.3s}
+    .delay-4{transition-delay:.4s}
+
+    /* ── Mobile ── */
+    @media(max-width:800px){
+      .hero .w{grid-template-columns:1fr;gap:32px}
+      .hero{padding:48px 0 40px}
+      section{padding:48px 0}
+      .section-head{margin-bottom:24px}
+      nav{gap:16px}
+      nav a{font-size:.75rem}
+      .hero-visual{padding:24px}
+    }
+    @media(max-width:600px){
+      header .w{padding-top:16px;padding-bottom:16px}
+      nav .btn{display:none}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="w">
+      <a href="tel:+12037879892">📞 (203) 787-9892</a>
+      <span>NMLS #75819 — Equal Housing Lender</span>
+    </div>
+  </div>
+
+  <header>
+    <div class="w">
+      <a href="/" class="logo">
+        <span class="logo-row">
+          <span class="logo-mark">A</span>
+          <span class="logo-main">scend Financial Network</span>
+        </span>
+        <span class="logo-sub">Connecticut Mortgage Lender</span>
+      </a>
+      <nav>
+        <a href="#calculator">Calculator</a>
+        <a href="#rates">Rates</a>
+        <a href="#programs">Programs</a>
+        <a href="#team">Our Team</a>
+        <a href="#blog">News</a>
+        <a href="#contact" class="btn btn-primary btn-sm">(203) 787-9892</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="w">
+      <div>
+        <span class="label">Connecticut Lending Since 2005</span>
+        <h1>Better rates start with <span>better expertise</span></h1>
+        <p>Twenty years in the Connecticut mortgage market. Dozens of loan programs. Straight talk from a local lender with no runaround.</p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">Compare Your Options →</a>
+          <a href="#programs" class="btn btn-outline">Explore Programs</a>
+        </div>
+        <div class="hero-meta">
+          <span>NMLS #75819</span>
+          <span>North Haven, CT</span>
+          <span>CT BBB Board of Directors</span>
+        </div>
+      </div>
+      <div class="hero-visual fade-up in">
+        <div class="quote">"We've spent two decades learning what works for Connecticut buyers — and what doesn't. Our job is to make sure you get the right mortgage, not the one that's easiest to sell you."</div>
+        <div class="attribution">— <strong>Jason Garbus</strong>, President & Broker · NMLS #75819</div>
+        <div class="trust-strip">
+          <span>FHA · VA · USDA</span>
+          <span>Conventional · Jumbo</span>
+          <span>Commercial</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stats ── -->
+  <section class="alt">
+    <div class="w">
+      <div class="stat-grid">
+        <div class="stat-card fade-up">
+          <div class="num">20+</div>
+          <div class="lbl">Years in Connecticut Lending</div>
+          <p>Founded in 2005 and serving Connecticut homeowners ever since.</p>
+        </div>
+        <div class="stat-card fade-up delay-1">
+          <div class="num">40+</div>
+          <div class="lbl">Years Combined Experience</div>
+          <p>Jason and Mark together bring four decades of mortgage expertise.</p>
+        </div>
+        <div class="stat-card fade-up delay-2">
+          <div class="num">Dozens</div>
+          <div class="lbl">Available Loan Programs</div>
+          <p>From FHA to jumbo — we have a program that fits your situation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── About ── -->
+  <section>
+    <div class="w-narrow fade-up">
+      <div class="section-head" style="text-align:center">
+        <span class="label">About</span>
+        <h2>We know mortgages. We know Connecticut.</h2>
+      </div>
+      <p class="lg">There's a lot of noise in the mortgage business. What you need is somebody who cuts through it.</p>
+      <p class="lg">Ascend Financial Network brings two decades of lending experience and a full suite of programs — from FHA and VA to jumbo, USDA, and high-balance nationwide loans. We know which ones work for Connecticut buyers.</p>
+      <p class="lg">Based in North Haven — not a boiler room or a national call center — you get direct access to the people making decisions.</p>
+    </div>
+  </section>
+
+  <!-- ── Programs ── -->
+  <section id="programs" class="alt">
+    <div class="w fade-up">
+      <div class="section-head">
+        <span class="label">Loan Programs</span>
+        <h2>Every loan you need, under one roof</h2>
+        <p>We've built relationships with top lenders nationwide, so you get competitive rates and flexible guidelines that fit your situation.</p>
+      </div>
+      <div class="prog-grid">
+        <div class="prog-group">
+          <h3>🟢 First-Time Buyer</h3>
+          <div class="sub">Low-down-payment solutions</div>
+          <div class="prog-row"><span>HomeReady / HomePossible</span><span class="tag">From 3% down</span></div>
+          <div class="prog-row"><span>FHA Loans</span><span class="tag">Flexible credit</span></div>
+          <div class="prog-row"><span>USDA Rural Development</span><span class="tag">Zero down</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🔵 Conventional</h3>
+          <div class="sub">Clean and competitive</div>
+          <div class="prog-row"><span>HomeOne / Standard Conventional</span><span class="tag">Best rates</span></div>
+          <div class="prog-row"><span>Conventional Elite</span><span class="tag">Flexible terms</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🛡️ Government-Backed</h3>
+          <div class="sub">For every eligible borrower</div>
+          <div class="prog-row"><span>FHA Loans</span><span class="tag">Lower credit scores</span></div>
+          <div class="prog-row"><span>VA Loans</span><span class="tag">Zero down</span></div>
+          <div class="prog-row"><span>USDA Rural Development</span><span class="tag">No down payment</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🟣 Premium Financing</h3>
+          <div class="sub">For high-value homes</div>
+          <div class="prog-row"><span>Jumbo Loans</span><span class="tag">Custom financing</span></div>
+          <div class="prog-row"><span>High Balance Nationwide</span><span class="tag">Above conforming</span></div>
+        </div>
+        <div class="prog-group" style="grid-column:1/-1;max-width:50%">
+          <h3>🏢 Commercial & Investment</h3>
+          <div class="sub">For business owners and investors</div>
+          <div class="prog-row"><span>Residential Investment Properties</span><span class="tag">Portfolio growth</span></div>
+          <div class="prog-row"><span>Commercial Lending</span><span class="tag">Business & development</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Rate Dashboard ── -->
+  <section id="rates" class="alt">
+    <div class="w fade-up">
+      <div class="section-head">
+        <span class="label">Current Mortgage Rates</span>
+        <h2>Today's CT mortgage rates</h2>
+        <p>Rates are updated regularly. Call us for a personalized quote based on your situation.</p>
+      </div>
+      <div class="rate-grid" id="rateGrid">
+        <div class="rate-card">
+          <div class="name">30-Year Fixed</div>
+          <div class="rate">6.625%</div>
+          <div class="apr">APR 6.721%</div>
+          <div class="tag">Conventional</div>
+        </div>
+        <div class="rate-card">
+          <div class="name">15-Year Fixed</div>
+          <div class="rate">5.875%</div>
+          <div class="apr">APR 5.998%</div>
+          <div class="tag">Conventional</div>
+        </div>
+        <div class="rate-card">
+          <div class="name">FHA 30-Year</div>
+          <div class="rate">6.375%</div>
+          <div class="apr">APR 6.494%</div>
+          <div class="tag">FHA</div>
+        </div>
+        <div class="rate-card">
+          <div class="name">VA 30-Year</div>
+          <div class="rate">6.125%</div>
+          <div class="apr">APR 6.218%</div>
+          <div class="tag">VA</div>
+        </div>
+      </div>
+      <div class="rate-updated">Rates as of June 14, 2026 · Subject to change · Call for a live quote</div>
+    </div>
+  </section>
+
+  <!-- ── What's New / Blog ── -->
+  <section id="blog">
+    <div class="w fade-up">
+      <div class="section-head">
+        <span class="label">What's New</span>
+        <h2>Latest from Ascend Financial</h2>
+        <p>Mortgage tips, Connecticut market insights, and news from our team.</p>
+      </div>
+      <div class="blog-grid">
+        <article class="blog-card">
+          <div class="date">June 12, 2026</div>
+          <h3>Connecticut First-Time Home Buyer Programs for 2026</h3>
+          <p>Thinking about buying your first home in CT? Here's what you need to know about down payment assistance, FHA options, and CHFA programs available right now.</p>
+          <a href="#" class="read-more">Read More →</a>
+        </article>
+        <article class="blog-card">
+          <div class="date">May 28, 2026</div>
+          <h3>FHA vs. Conventional: Which Loan Is Right for You?</h3>
+          <p>Not sure whether FHA or conventional is the better fit? We break down the differences in credit requirements, down payments, and mortgage insurance.</p>
+          <a href="#" class="read-more">Read More →</a>
+        </article>
+        <article class="blog-card">
+          <div class="date">May 14, 2026</div>
+          <h3>CT Mortgage Rates Update — Mid-2026 Outlook</h3>
+          <p>Rates have been shifting. Here's what Jason and Mark are seeing in the Connecticut market and what buyers should be thinking about right now.</p>
+          <a href="#" class="read-more">Read More →</a>
+        </article>
+      </div>
+      <div class="blog-more">
+        <a href="#">View All Articles →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Trust Band ── -->
+  <div class="trust-band">
+    <div class="w">
+      <span>NMLS #75819</span>
+      <span>CT BBB Board of Directors</span>
+      <span>20+ Year Track Record</span>
+      <span>Equal Housing Lender</span>
+    </div>
+  </div>
+
+  <!-- ── Team ── -->
+  <section id="team">
+    <div class="w fade-up">
+      <div class="section-head">
+        <span class="label">Our Team</span>
+        <h2>Two experts. One mission.</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="name">Jason Garbus</div>
+          <div class="role">President / Broker</div>
+          <div class="nmls">NMLS #75819 · <a href="https://nmlsconsumeraccess.org" target="_blank">nmlsconsumeraccess.org</a></div>
+          <div class="bio">Bryant University finance graduate with over 20 years in the industry. Jason founded Ascend on a philosophy of transparency and long-term relationships. He has served on the <strong>Connecticut Better Business Bureau Board of Directors since 2017</strong>.</div>
+        </div>
+        <div class="team-card">
+          <div class="name">Mark Prete</div>
+          <div class="role">Senior Loan Officer</div>
+          <div class="nmls">NMLS #1289663 · <a href="https://nmlsconsumeraccess.org" target="_blank">nmlsconsumeraccess.org</a></div>
+          <div class="bio">Mark brings deep knowledge of the lending landscape and a genuine passion for helping clients navigate the mortgage process. Together, he and Jason have <strong>closed loans for hundreds of Connecticut families</strong> — from first-time buyers to seasoned investors.</div>
+        </div>
+        <div class="team-cta"><strong>Bottom line:</strong> You get 40+ years of combined experience working for you.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Mortgage Calculator ── -->
+  <section id="calculator" class="alt">
+    <div class="w fade-up">
+      <div class="section-head" style="text-align:center">
+        <span class="label">Mortgage Calculator</span>
+        <h2>Estimate your monthly payment</h2>
+        <p style="margin:0 auto">See what your mortgage might look like. This is an estimate — your actual rate and payment will be determined when you apply.</p>
+      </div>
+      <div class="calc-wrap" style="max-width:900px;margin:0 auto">
+        <div class="calc-form">
+          <div>
+            <label>Home Price</label>
+            <div class="input-group"><span>$</span><input type="number" id="calcPrice" value="400000" oninput="calcMortgage()"></div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Down Payment</label>
+              <div class="input-group"><span>$</span><input type="number" id="calcDown" value="80000" oninput="calcMortgage()"></div>
+            </div>
+            <div>
+              <label>Down Payment %</label>
+              <div class="input-group"><input type="number" id="calcDownPct" value="20" oninput="syncDownPct()"><span>%</span></div>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Interest Rate</label>
+              <div class="input-group"><input type="number" id="calcRate" value="6.625" step="0.125" oninput="calcMortgage()"><span>%</span></div>
+            </div>
+            <div>
+              <label>Loan Term</label>
+              <div class="input-group"><input type="number" id="calcTerm" value="30" oninput="calcMortgage()"><span>yrs</span></div>
+            </div>
+          </div>
+          <div>
+            <label>Annual Property Tax</label>
+            <div class="input-group"><span>$</span><input type="number" id="calcTax" value="4800" oninput="calcMortgage()"></div>
+          </div>
+          <div>
+            <label>Annual Home Insurance</label>
+            <div class="input-group"><span>$</span><input type="number" id="calcIns" value="1200" oninput="calcMortgage()"></div>
+          </div>
+        </div>
+        <div class="calc-result">
+          <div class="big" id="calcMonthly">$2,422</div>
+          <div class="lbl">Estimated Monthly Payment</div>
+          <div class="detail"><span>Principal & Interest</span><span id="calcPI">$2,050</span></div>
+          <div class="detail"><span>Property Tax</span><span id="calcTaxDisplay">$400</span></div>
+          <div class="detail"><span>Home Insurance</span><span id="calcInsDisplay">$100</span></div>
+          <div class="detail"><span>Loan Amount</span><span id="calcLoanAmt">$320,000</span></div>
+          <div class="calc-note">This is an estimate. Actual payment may vary based on credit, location, and lender fees.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section id="contact" class="cta">
+    <div class="w fade-up">
+      <h2>Ready for a better mortgage experience?</h2>
+      <p>No runaround. No hidden fees. Just straight talk and competitive rates from a Connecticut lender you can trust.</p>
+      <div class="cta-actions">
+        <a href="tel:+12037879892" class="btn btn-primary">📞 Call (203) 787-9892</a>
+        <a href="#" class="btn btn-secondary">Apply Now →</a>
+      </div>
+      <address><strong>Ascend Financial Network, LLC</strong><br>250 State St, Unit F2 · North Haven, CT 06473</address>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="w">
+      <div>
+        <h4>Ascend Financial Network, LLC</h4>
+        <p style="color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:4px">250 State St, Unit F2<br>North Haven, CT 06473</p>
+        <p style="margin-bottom:4px"><a href="tel:+12037879892">(203) 787-9892</a></p>
+      </div>
+      <div>
+        <h4>Jason Garbus</h4>
+        <p style="color:rgba(255,255,255,.5);font-size:.82rem">President / Broker<br>NMLS #75819</p>
+      </div>
+      <div>
+        <h4>Mark Prete</h4>
+        <p style="color:rgba(255,255,255,.5);font-size:.82rem">Senior Loan Officer<br>NMLS #1289663</p>
+      </div>
+      <div class="eho">
+        © 2026 Ascend Financial Network, LLC. All rights reserved. Equal Housing Lender.<br>
+        NMLS Consumer Access: <a href="https://nmlsconsumeraccess.org" target="_blank">nmlsconsumeraccess.org</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Intersection Observer ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('in');
+      });
+    }, { threshold: .1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ── Mortgage Calculator ──
+    function syncDownPct() {
+      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+      const pct = parseFloat(document.getElementById('calcDownPct').value) || 0;
+      document.getElementById('calcDown').value = Math.round(price * pct / 100);
+      calcMortgage();
+    }
+    function calcMortgage() {
+      const price = parseFloat(document.getElementById('calcPrice').value) || 0;
+      const down = parseFloat(document.getElementById('calcDown').value) || 0;
+      const rate = (parseFloat(document.getElementById('calcRate').value) || 0) / 100 / 12;
+      const term = (parseFloat(document.getElementById('calcTerm').value) || 30) * 12;
+      const tax = (parseFloat(document.getElementById('calcTax').value) || 0) / 12;
+      const ins = (parseFloat(document.getElementById('calcIns').value) || 0) / 12;
+
+      // Sync down payment percentage
+      const pct = price > 0 ? Math.round(down / price * 100) : 0;
+      document.getElementById('calcDownPct').value = pct;
+
+      const loan = price - down;
+      document.getElementById('calcLoanAmt').textContent = '$' + loan.toLocaleString();
+
+      let monthlyPI = 0;
+      if (rate > 0 && term > 0 && loan > 0) {
+        monthlyPI = loan * (rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+      }
+
+      const total = monthlyPI + tax + ins;
+      document.getElementById('calcMonthly').textContent = '$' + Math.round(total).toLocaleString();
+      document.getElementById('calcPI').textContent = '$' + Math.round(monthlyPI).toLocaleString();
+      document.getElementById('calcTaxDisplay').textContent = '$' + Math.round(tax).toLocaleString();
+      document.getElementById('calcInsDisplay').textContent = '$' + Math.round(ins).toLocaleString();
+    }
+    calcMortgage();
+  </script>
+</body>
+</html>
