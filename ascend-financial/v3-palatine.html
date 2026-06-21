@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ascend Financial Network | North Haven, CT</title>
+  <meta name="description" content="CT mortgage lender. Local since 2005." />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Palatino','Palatino Linotype','Book Antiqua',Georgia,serif;background:#f7f3ec;color:#1e1a14;line-height:1.65;-webkit-font-smoothing:antialiased}
+    .container{max-width:840px;margin:0 auto;padding:0 28px}
+
+    .top-bar{background:#1e1a14;color:rgba(255,255,255,.35);font-size:.7rem;padding:6px 0;text-align:center;letter-spacing:1px;text-transform:uppercase}
+    .top-bar a{color:rgba(255,255,255,.5);text-decoration:none}
+
+    nav{background:#f7f3ec;padding:28px 0 0}
+    nav .container{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:12px;border-bottom:2px solid #1e1a14}
+    .logo{text-decoration:none}
+    .logo .name{font-size:1.6rem;font-weight:700;color:#1e1a14;line-height:1.1}
+    .logo .name span{color:#9e3a2a}
+    .logo .sub{font-size:.75rem;color:#7a6e5b;letter-spacing:2px;text-transform:uppercase}
+    .nav-links{display:flex;gap:28px}
+    .nav-links a{color:#5a4f3e;text-decoration:none;font-size:.85rem;transition:color .2s}
+    .nav-links a:hover{color:#9e3a2a}
+
+    .hero{padding:48px 0 40px;border-bottom:1px solid #e0d8cc}
+    .hero .label{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:#9e3a2a;font-weight:700;margin-bottom:8px}
+    .hero h1{font-size:clamp(1.4rem,3.2vw,1.9rem);font-weight:400;line-height:1.25;color:#1e1a14;margin-bottom:12px}
+    .hero h1 strong{font-weight:700}
+    .hero h1 em{font-style:italic;color:#9e3a2a}
+    .hero p{font-size:.95rem;color:#5a4f3e;max-width:420px;margin-bottom:24px}
+    .btn{display:inline-block;padding:10px 28px;font-family:'Palatino',Georgia,serif;font-size:.8rem;text-decoration:none;letter-spacing:1px;transition:all .2s}
+    .btn-solid{background:#1e1a14;color:#fff}
+    .btn-solid:hover{background:#3d3222}
+    .btn-accent{background:#9e3a2a;color:#fff}
+    .btn-accent:hover{background:#802e20}
+    .btn-outline{border:1px solid #1e1a14;color:#1e1a14}
+    .btn-outline:hover{background:#1e1a14;color:#fff}
+    .hero-meta{margin-top:20px;display:flex;gap:20px;flex-wrap:wrap;font-size:.8rem;color:#7a6e5b}
+
+    section{padding:44px 0}
+    h2{font-size:1.2rem;font-weight:700;color:#1e1a14;margin-bottom:6px}
+    p{color:#3d3527;margin-bottom:12px;font-size:.95rem}
+
+    .about p{max-width:560px}
+
+    .divider{width:60px;height:1px;background:#9e3a2a;margin:16px 0}
+
+    .stats{display:flex;gap:28px;flex-wrap:wrap;margin-top:16px}
+    .stat{display:flex;align-items:baseline;gap:6px;font-size:.9rem;color:#5a4f3e}
+    .stat strong{font-size:1.1rem;color:#1e1a14}
+
+    .badge-row{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+    .badge-row span{background:#ede8de;padding:4px 12px;font-size:.75rem;color:#1e1a14;border:1px solid #ddd6c8}
+
+    .programs{background:#ede8de;border-top:1px solid #ddd6c8;border-bottom:1px solid #ddd6c8}
+    .prog-items{border-top:1px solid #ddd6c8;margin-top:16px}
+    .prog-item{padding:8px 0;border-bottom:1px solid #ddd6c8;display:flex;justify-content:space-between;font-size:.9rem}
+    .prog-item:last-child{border-bottom:none}
+    .prog-item .tag{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9e3a2a;background:rgba(158,58,42,.06);padding:2px 8px}
+    .prog-group{margin-bottom:20px}
+    .prog-group h3{font-size:.85rem;font-weight:700;color:#1e1a14;margin-bottom:2px}
+    .prog-group .sub{font-size:.8rem;font-style:italic;color:#7a6e5b;margin-bottom:6px}
+
+    .team-card{margin-bottom:24px}
+    .team-card:last-of-type{margin-bottom:0}
+    .team-card .name{font-size:1.1rem;font-weight:700;color:#1e1a14}
+    .team-card .role{font-size:.8rem;color:#9e3a2a;font-weight:600;font-style:italic;margin:2px 0}
+    .team-card .nmls{font-size:.75rem;color:#7a6e5b;margin-bottom:4px}
+    .team-card p{font-size:.9rem;max-width:580px}
+    .team-note{margin-top:20px;padding-top:16px;border-top:1px solid #ddd6c8;font-style:italic;color:#5a4f3e;font-size:.9rem}
+
+    .cta{background:#1e1a14;color:#fff;text-align:center;padding:52px 0}
+    .cta h2{color:#fff}
+    .cta p{color:rgba(255,255,255,.5);max-width:400px;margin:0 auto 20px;font-style:italic}
+    .cta address{font-style:normal;margin-top:14px;color:rgba(255,255,255,.3);font-size:.85rem}
+    .cta .btn-outline{border-color:rgba(255,255,255,.4);color:#fff}
+    .cta .btn-outline:hover{background:#fff;color:#1e1a14;border-color:#fff}
+
+    footer{background:#14100c;color:#6e6250;padding:28px 0 20px;font-size:.8rem;text-align:center}
+    footer a{color:#888;text-decoration:none}
+    footer a:hover{color:#9e3a2a}
+    footer .eho{margin-top:16px;padding-top:12px;border-top:1px solid #1e1a14;font-size:.75rem}
+
+    @media(max-width:600px){.hero{padding:32px 0}section{padding:28px 0}nav .container{flex-direction:column;align-items:flex-start;gap:8px}.nav-links{flex-wrap:wrap;gap:16px}}
+  </style>
+</head>
+<body>
+  <div class="top-bar"><span><a href="tel:+12037879892">(203) 787-9892</a></span><span>NMLS #75819</span><span>Equal Housing Lender</span></div>
+
+  <nav>
+    <div class="container">
+      <a href="/" class="logo">
+        <div class="name">Ascend Financial <span>Network</span></div>
+        <div class="sub">NORTH HAVEN, CONNECTICUT</div>
+      </a>
+      <div class="nav-links">
+        <a href="#programs">Programs</a>
+        <a href="#team">Team</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="container">
+      <div class="label">Connecticut Mortgage Lender Since 2005</div>
+      <h1>Better rates start with <em>better expertise.</em></h1>
+      <p>Twenty years in the Connecticut market. Dozens of loan programs. Straight talk from a local lender you can trust.</p>
+      <div><a href="#contact" class="btn btn-accent">Compare Your Options →</a> <a href="#programs" class="btn btn-outline" style="margin-left:8px">Explore Programs</a></div>
+      <div class="hero-meta"><span>NMLS #75819</span><span>North Haven, CT</span><span>CT BBB Board of Directors</span></div>
+    </div>
+  </div>
+
+  <section class="about">
+    <div class="container">
+      <h2>We know mortgages. We know Connecticut.</h2>
+      <div class="divider"></div>
+      <p>There's a lot of noise in the mortgage business. What you need is somebody who cuts through it.</p>
+      <p>Ascend Financial Network brings two decades of lending experience and a full suite of programs — from FHA and VA to jumbo, USDA, and high-balance nationwide loans. We know which ones work for Connecticut buyers. Based in North Haven — not a boiler room — you get direct access to the people making decisions.</p>
+      <div class="badge-row">
+        <span>NMLS #75819</span>
+        <span>CT BBB Board of Directors</span>
+        <span>20+ Year Track Record</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong>20+</strong> Years in CT Lending</div>
+        <div class="stat"><strong>40+</strong> Combined Experience</div>
+        <div class="stat"><strong>Dozens</strong> of Loan Programs</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="programs" class="programs">
+    <div class="container">
+      <h2>Loan Programs</h2>
+      <div class="divider"></div>
+      <p style="max-width:500px">We've built relationships with lenders nationwide, so you get competitive rates and flexible guidelines that fit your situation.</p>
+      <div class="prog-items">
+        <div class="prog-group">
+          <h3>🟢 First-Time Buyer</h3>
+          <div class="sub">Low-down-payment solutions</div>
+          <div class="prog-item"><span>HomeReady / HomePossible</span><span class="tag">From 3% down</span></div>
+          <div class="prog-item"><span>FHA Loans</span><span class="tag">Flexible credit</span></div>
+          <div class="prog-item"><span>USDA Rural Development</span><span class="tag">Zero down</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🔵 Conventional</h3>
+          <div class="sub">Clean and competitive</div>
+          <div class="prog-item"><span>HomeOne / Standard</span><span class="tag">Best rates</span></div>
+          <div class="prog-item"><span>Conventional Elite</span><span class="tag">Flexible terms</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🛡️ Government-Backed</h3>
+          <div class="sub">For every eligible borrower</div>
+          <div class="prog-item"><span>FHA Loans</span><span class="tag">Lower credit</span></div>
+          <div class="prog-item"><span>VA Loans</span><span class="tag">Zero down</span></div>
+          <div class="prog-item"><span>USDA Rural</span><span class="tag">No down payment</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🟣 Premium Financing</h3>
+          <div class="sub">For high-value homes</div>
+          <div class="prog-item"><span>Jumbo Loans</span><span class="tag">Custom financing</span></div>
+          <div class="prog-item"><span>High Balance Nationwide</span><span class="tag">Above conforming</span></div>
+        </div>
+        <div class="prog-group">
+          <h3>🏢 Commercial & Investment</h3>
+          <div class="sub">For business owners</div>
+          <div class="prog-item"><span>Residential Investment</span><span class="tag">Portfolio growth</span></div>
+          <div class="prog-item"><span>Commercial Lending</span><span class="tag">Business & development</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team">
+    <div class="container">
+      <h2>Our Team</h2>
+      <div class="divider"></div>
+      <div class="team-card">
+        <div class="name">Jason Garbus</div>
+        <div class="role">President &mdash; Broker &bull; NMLS #75819</div>
+        <p>Bryant University finance graduate with over 20 years in the industry. Jason founded Ascend on a philosophy of transparency and long-term relationships. He has served on the Connecticut Better Business Bureau Board of Directors since 2017.</p>
+      </div>
+      <div class="team-card">
+        <div class="name">Mark Prete</div>
+        <div class="role">Senior Loan Officer &bull; NMLS #1289663</div>
+        <p>Mark brings deep knowledge of the lending landscape and a genuine passion for helping clients navigate the mortgage process. Together, he and Jason have closed hundreds of Connecticut loans &mdash; from first-time buyers to seasoned investors.</p>
+      </div>
+      <div class="team-note"><strong>Bottom line:</strong> You get 40+ years of combined experience working for you.</div>
+    </div>
+  </section>
+
+  <section id="contact" class="cta">
+    <div class="container">
+      <h2>Ready for a Better Mortgage Experience?</h2>
+      <p>No runaround. No hidden fees. Just straight talk and competitive rates from a Connecticut lender you can trust.</p>
+      <div><a href="tel:+12037879892" class="btn btn-accent">Call (203) 787-9892</a> <a href="#" class="btn btn-outline" style="margin-left:8px">Apply Now →</a></div>
+      <address>250 State St, Unit F2 &bull; North Haven, CT 06473</address>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p><strong>Ascend Financial Network, LLC</strong><br>250 State St, Unit F2 &bull; North Haven, CT 06473 &bull; <a href="tel:+12037879892">(203) 787-9892</a></p>
+      <p>Jason Garbus &mdash; President/Broker &bull; Mark Prete &mdash; Senior Loan Officer</p>
+      <div class="eho">&copy; 2026 Ascend Financial Network, LLC. All rights reserved. Equal Housing Lender.<br>NMLS Consumer Access: <a href="https://nmlsconsumeraccess.org">nmlsconsumeraccess.org</a></div>
+    </div>
+  </footer>
+</body>
+</html>

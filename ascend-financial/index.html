@@ -145,6 +145,7 @@
       margin-top:4px;
     }
 
+    /* ── Nav ── */
     nav{display:flex;align-items:center;gap:32px}
     nav a{
       color:var(--ink-soft);
@@ -157,6 +158,26 @@
     }
     nav a:hover{color:var(--accent);border-color:var(--accent)}
     nav .btn{font-size:.8rem;padding:10px 24px}
+
+    /* ── Mobile menu toggle ── */
+    .menu-btn{
+      display:none;
+      background:none;border:none;cursor:pointer;
+      width:36px;height:36px;
+      flex-direction:column;justify-content:center;align-items:center;
+      gap:5px;
+      padding:4px;
+    }
+    .menu-btn span{
+      display:block;
+      width:24px;height:2px;
+      background:var(--ink);
+      transition:transform .25s,opacity .25s;
+      border-radius:1px;
+    }
+    .menu-btn.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .menu-btn.open span:nth-child(2){opacity:0}
+    .menu-btn.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
     /* ── Hero ── */
     .hero{
@@ -394,13 +415,31 @@
       .hero{padding:48px 0 40px}
       section{padding:48px 0}
       .section-head{margin-bottom:24px}
-      nav{gap:16px}
-      nav a{font-size:.75rem}
       .hero-visual{padding:24px}
-    }
-    @media(max-width:600px){
-      header .w{padding-top:16px;padding-bottom:16px}
-      nav .btn{display:none}
+
+      /* Mobile nav */
+      .menu-btn{display:flex}
+      nav{
+        position:fixed;top:0;left:0;right:0;bottom:0;
+        background:var(--warm-white);
+        flex-direction:column;justify-content:center;align-items:center;
+        gap:20px;
+        opacity:0;pointer-events:none;
+        transition:opacity .25s;
+        z-index:100;
+      }
+      nav.open{opacity:1;pointer-events:auto}
+      nav a{font-size:1.1rem;padding:8px 0}
+      nav .btn{font-size:.9rem;padding:12px 28px;display:inline-flex}
+
+      /* Close button in overlay nav */
+      .nav-close{
+        position:absolute;top:20px;right:24px;
+        background:none;border:none;cursor:pointer;
+        font-size:1.5rem;color:var(--ink);
+        padding:4px;
+        line-height:1;
+      }
     }
   </style>
 </head>
@@ -422,7 +461,11 @@
         </span>
         <span class="logo-sub">Connecticut Mortgage Lender</span>
       </a>
-      <nav>
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav id="mainNav">
+        <button class="nav-close" id="navClose" aria-label="Close menu">✕</button>
         <a href="#calculator">Calculator</a>
         <a href="#rates">Rates</a>
         <a href="#programs">Programs</a>
@@ -785,6 +828,19 @@
       document.getElementById('calcInsDisplay').textContent = '$' + Math.round(ins).toLocaleString();
     }
     calcMortgage();
+
+    // ── Mobile menu toggle ──
+    const menuBtn = document.getElementById('menuBtn');
+    const mainNav = document.getElementById('mainNav');
+    const navClose = document.getElementById('navClose');
+    function toggleNav(open) {
+      mainNav.classList.toggle('open', open);
+      menuBtn.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    menuBtn.addEventListener('click', () => toggleNav(!mainNav.classList.contains('open')));
+    navClose.addEventListener('click', () => toggleNav(false));
+    mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => toggleNav(false)));
   </script>
 </body>
 </html>
